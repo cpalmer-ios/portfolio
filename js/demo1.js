@@ -16,12 +16,12 @@
     class Entry {
         constructor(el) {
             this.DOM = {el: el};
-            this.DOM.image = this.DOM.el.querySelector('.content__img');
+            this.DOM.image = this.DOM.el.querySelectorAll('.card');
             this.DOM.title = {word: this.DOM.el.querySelector('.content__text')};
             charming(this.DOM.title.word);
             this.DOM.title.letters = Array.from(this.DOM.title.word.querySelectorAll('span'));
             this.DOM.title.letters.forEach(letter => letter.dataset.initial = letter.innerHTML);
-            this.lettersTotal = this.DOM.title.letters.length;
+            this.lettersTotal = this.DOM.title.letters.length; 
             observer.observe(this.DOM.el);
         }  
         enter(direction = 'down') {
@@ -43,9 +43,18 @@
                 }, pos*80);
                 this.timeouts.push(timeout);
             });
+            this.DOM.image.forEach((img, pos) => {
+                const timeout = setTimeout(() => {
+                    img.style.opacity = 1;
+                }, pos*80);
+                this.timeouts.push(timeout);
+            });
         }
         exit(direction = 'down') {
             this.DOM.title.word.style.opacity = 0;
+            this.DOM.image.forEach((img, pos) => {
+                    img.style.opacity = 0;
+            });
             if ( this.complete ) return;
             for ( let i = 0, len = this.timeouts.length; i <= len - 1; ++i ) {
                 clearTimeout(this.timeouts[i]);

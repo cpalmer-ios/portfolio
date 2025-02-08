@@ -27,7 +27,7 @@
             this.DOM = {
                 el: el
             };
-            this.DOM.image = this.DOM.el.querySelector('.content__img');
+            this.DOM.image = this.DOM.el.querySelectorAll('.card');
             this.DOM.title = {
                 word: this.DOM.el.querySelector('.content__text')
             };
@@ -53,9 +53,18 @@
                 }, pos * 80);
                 this.timeouts.push(timeout);
             });
+            this.DOM.image.forEach((img, pos)=>{
+                const timeout = setTimeout(()=>{
+                    img.style.opacity = 1;
+                }, pos * 80);
+                this.timeouts.push(timeout);
+            });
         }
         exit(direction = 'down') {
             this.DOM.title.word.style.opacity = 0;
+            this.DOM.image.forEach((img, pos)=>{
+                img.style.opacity = 0;
+            });
             if (this.complete) return;
             for(let i = 0, len = this.timeouts.length; i <= len - 1; ++i)clearTimeout(this.timeouts[i]);
         }

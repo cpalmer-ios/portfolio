@@ -898,7 +898,7 @@ a:hover, a:focus {
 .wrapper {
   width: 100%;
   max-width: 1224px;
-  margin: 3rem auto 0;
+  margin: 4rem auto -3rem;
   overflow: hidden;
 }
 

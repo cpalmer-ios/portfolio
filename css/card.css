@@ -10,6 +10,8 @@
 	/* font-family: 'Futura'; */
 	z-index: 3 !important;
 	border: 2px solid gray;
+	opacity: 0;
+	transition: 0.5s;
 }
 
 .card__container {

@@ -1,10 +1,12 @@
 .card {
   float: left;
+  opacity: 0;
   border: 2px solid gray;
   width: 29%;
   height: 0;
   margin: 2%;
   padding-bottom: 20%;
+  transition: all .5s;
   position: relative;
   z-index: 3 !important;
 }

@@ -5469,7 +5469,7 @@ class TextAnimator {
     }
 }
 
-},{"./textSplitter.js":"OSn7V","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","gsap":"fPSuC"}],"OSn7V":[function(require,module,exports,__globalThis) {
+},{"gsap":"fPSuC","./textSplitter.js":"OSn7V","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"OSn7V":[function(require,module,exports,__globalThis) {
 // Defines a debounce function to limit the rate at which a function can fire.
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);

@@ -826,15 +826,6 @@ var demo = function(window1, undefined) {
                                 url: "https://www.penguin.com/"
                             }
                         ]
-                    },
-                    {
-                        title: "Comissions",
-                        links: [
-                            {
-                                title: "Hot Rocks",
-                                url: "https://hotrocksrestaurant.co.uk/"
-                            }
-                        ]
                     }
                 ]
             },
@@ -1023,8 +1014,8 @@ var demo = function(window1, undefined) {
         var card = layout[id].card;
         // Prevent when card already open and user click on image.
         if (card.isOpen && isOpenClick) return;
-        $(".menu").attr("class", "menu slide-up");
-        $(".ink__blot-1").attr("class", "menu fade-out");
+        // $(".menu").attr("class", "menu" + " " + "slide-up");
+        // $(".ink__blot-1").attr("class", "menu" + " " + "fade-out");
         // Create timeline for the whole sequence.
         var sequence = new TimelineLite({
             paused: true
@@ -1036,6 +1027,7 @@ var demo = function(window1, undefined) {
             sequence.add(card.openCard(_onCardMove), 0);
         } else {
             $(".menu").attr("class", "menu slide-down");
+            // document.querySelectorAll(".card").forEach((card, i) => {card.style.opacity = 1});
             // Close sequence.
             var closeCard = card.closeCard();
             var position = closeCard.duration() * 0.8; // 80% of close card tween.

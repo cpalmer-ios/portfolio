@@ -25,6 +25,7 @@
             observer.observe(this.DOM.el);
         }  
         enter(direction = 'down') {
+            // console.log()
             this.DOM.title.word.style.opacity = 1;
             
             this.timeouts = [];

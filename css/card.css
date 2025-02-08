@@ -10,7 +10,7 @@
 	/* font-family: 'Futura'; */
 	z-index: 3 !important;
 	border: 2px solid gray;
-	opacity: 0;
+	/* opacity: 0; */
 	transition: 0.5s;
 }
 
@@ -33,6 +33,7 @@
 }
 
 .card__image {
+
 	position: relative;
 	left: 50%;
 	display: block;
@@ -42,6 +43,7 @@
 	-ms-transform: translateX(-50%);
 	transform: translateX(-50%);
 	margin-top: -3rem;
+	filter: grayscale(1) contrast(1.5);
 }
 
 .card__img {

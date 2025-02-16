@@ -4,6 +4,8 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "description": "",
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
@@ -21,6 +23,7 @@
     "url": "https://github.com/codrops/[NAME]/issues"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "gsap": "^3.9.1",
     "parcel": "latest"
   }

@@ -7,8 +7,8 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "parcel ./index.html --open",
-    "clean": "rm -rf dist/*",
-    "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
+    "clean": "rm -rf build/*",
+    "build:parcel": "parcel build ./index.html --dist-dir build --no-content-hash --no-source-maps --public-url ./",
     "build": "npm run clean && npm run build:parcel"
   },
   "repository": {

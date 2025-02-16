@@ -36,7 +36,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Adjust to the version of Node.js you're using
+          node-version: '16'  # You can adjust this if you're using another version
 
       # Install dependencies
       - name: Install dependencies
@@ -48,17 +48,7 @@ jobs:
         run: |
           npm run build
 
-      # Setup Pages for deployment
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      # Upload the dist folder to GitHub Pages
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      # Deploy the content to GitHub Pages
+      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        run: |
+          npm run deploy

@@ -848,7 +848,6 @@ a:hover, a:focus {
   border-style: solid;
   border-color: #0000;
   margin-top: 9rem;
-  font-family: Comfortaa;
   font-size: 128px;
   font-weight: 300;
   line-height: .8;
@@ -865,7 +864,6 @@ a:hover, a:focus {
   border-style: solid;
   border-color: #0000;
   margin-top: 16rem;
-  font-family: Comfortaa;
   font-size: 128px;
   font-weight: 300;
   line-height: .8;
@@ -1695,6 +1693,7 @@ img.ink__blot-2 {
 .content p {
   max-width: 100%;
   margin: 1.5rem auto;
+  padding: 10px;
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.5;

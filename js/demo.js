@@ -221,7 +221,7 @@ var demo = (function (window, undefined) {
           var possible = '-+*/|}{[]~\\":;?/.><=+-_)(*&^%$#@!)}';
           logoTitleContainer.attr({
             fontSize: 100,
-            fontFamily: "Comfortaa",
+            // fontFamily: "Comfortaa",
             fontWeight: "800",
             color: "#212121"
           });
@@ -279,16 +279,16 @@ var demo = (function (window, undefined) {
             title: "Personal",
             links: [
               { title: "Education", url: "#", modalId: "modal2", onclick: openEducation },
-              { title: "Music", url: "#" },
-              { title: "Side Projects", url: "#" },
+              // { title: "Music", url: "#" },
+              // { title: "Side Projects", url: "#" },
               // { title: "Publications", url: "#" },
             ],
           },
           {
             title: "History",
             links: [
-              { title: "Full Resume", url: "#" },
-              { title: "Milestones", url: "#" },
+              { title: "Full Resume", url: "#", modalId: "modal3", onclick: openResume },
+              // { title: "Milestones", url: "#" },
               // { title: "Global Impact", url: "#" },
             ],
           },
@@ -698,6 +698,35 @@ const openLinkedIn = (function () {
 /* Open Education modal */
 const openEducation = (function () {
   const buttons = document.querySelectorAll("[aria-controls^='modal2']");
+  const transitionLayer = document.querySelector("[data-modal_lightbox]");
+  const transitionLayer_bg = transitionLayer ? transitionLayer.querySelector(".lightbox_bg") : null;
+
+  if (!buttons || !transitionLayer || !transitionLayer_bg) return;
+
+  const btnOpenAttr = "aria-controls";
+  const visibleClass = "-js-visible";
+  const openingClass = "-js-opening";
+
+  return (e) => {  // Returning the function to the outer scope
+    e.preventDefault();
+    const modalId = e.target.getAttribute("aria-controls");
+    // const modelId = e.target.getAttribute(btnOpenAttr);
+    if (!modalId) return;
+
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    transitionLayer.classList.add(visibleClass, openingClass);
+
+    setTimeout(() => {
+      modal.classList.add(visibleClass);
+    }, 800);
+  };
+})();
+
+/* Open Resume modal */
+const openResume = (function () {
+  const buttons = document.querySelectorAll("[aria-controls^='modal3']");
   const transitionLayer = document.querySelector("[data-modal_lightbox]");
   const transitionLayer_bg = transitionLayer ? transitionLayer.querySelector(".lightbox_bg") : null;
 

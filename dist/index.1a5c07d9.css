@@ -90,7 +90,7 @@
 .card__title {
   color: #3b393d;
   margin: 5px 0 0;
-  font-size: 1.5em;
+  font-size: 1em;
   line-height: 1;
 }
 
@@ -119,7 +119,7 @@
 
 .card__copy p:first-of-type, .card__copy .card__title {
   padding: 0 0 1em;
-  font-size: 1.5em;
+  font-size: 1em;
 }
 
 .card__copy .meta__note {

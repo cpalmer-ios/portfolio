@@ -936,7 +936,7 @@ a:focus {
   margin-top: 9rem;
   position: absolute;
   /* font-family: 'Fonts, Arial, sans-serif'; */
-  font-family: 'Comfortaa';
+  /* font-family: 'Comfortaa'; */
   font-size: 128px;
   font-weight: 300;
   animation: slide-up .5s forwards;
@@ -959,7 +959,7 @@ a:focus {
   margin-top: 16rem;
   position:absolute;
   /* font-family: 'Fonts, Arial, sans-serif'; */
-  font-family: 'Comfortaa';
+  /* font-family: 'Comfortaa'; */
   font-size: 128px;
   font-weight: 300;
   animation: slide-up2 .5s forwards;
@@ -1864,6 +1864,7 @@ img.ink__blot-2 {
 	font-size: 1rem;
 	line-height: 1.5;
 	font-weight: 600;
+  padding: 10px;
 }
 
 .content--highlight p {

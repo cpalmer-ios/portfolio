@@ -1,5 +1,5 @@
 {
-  "name": "expandingroundedmenu",
+  "name": "portfolio",
   "version": "1.0.0",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "description": "",
@@ -15,7 +15,7 @@
     "url": "git://github.com/cpalmer-ios/portfolio.git"
   },
   "keywords": [],
-  "author": "Codrops",
+  "author": "Chris Palmer",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cpalmer-ios/portfolio/issues"

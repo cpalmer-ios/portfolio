@@ -1,27 +1,29 @@
 {
-  "name": "expandingroundedmenu",
+  "name": "portfolio",
   "version": "1.0.0",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "description": "",
+  "homepage": "https://cpalmer-ios.github.io/portfolio",
   "scripts": {
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
-    "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "parcel build ./index.html --public-url ./"
+    "build": "parcel build ./index.html",
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/codrops/[NAME].git"
+    "url": "git://github.com/cpalmer-ios/portfolio.git"
   },
   "keywords": [],
-  "author": "Codrops",
+  "author": "Chris Palmer",
   "license": "MIT",
-  "homepage": "https://tympanus.net/codrops",
   "bugs": {
-    "url": "https://github.com/codrops/[NAME]/issues"
+    "url": "https://github.com/cpalmer-ios/portfolio/issues"
   },
   "dependencies": {
+    "gh-pages": "^6.3.0",
     "gsap": "^3.9.1",
-    "parcel": "latest"
+    "parcel": "latest",
+    "split-type": "^0.3.4"
   }
 }

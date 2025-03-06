@@ -83,4 +83,29 @@ srcDirs.forEach(dir => {
   copyDirectoryRecursive(srcPath, destPath);
 });
 
+// Special handling for the jfish1.mov file
+const jfishSrcPath = path.join(__dirname, 'img', 'jfish1.mov');
+const jfishDistPath = path.join(__dirname, 'dist', 'jfish1.mov');
+const jfishBackupDistPath = path.join(__dirname, 'dist', 'jfish1.e9bd588f.mov');
+
+if (fs.existsSync(jfishSrcPath)) {
+  copyFile(jfishSrcPath, jfishDistPath);
+  // Also add a copy with the Parcel hash format in case that's what the HTML references
+  copyFile(jfishSrcPath, jfishBackupDistPath);
+}
+
+// Copy the video fallback script
+const fallbackScriptSrc = path.join(__dirname, 'video-fallback.js');
+const fallbackScriptDest = path.join(__dirname, 'dist', 'video-fallback.js');
+if (fs.existsSync(fallbackScriptSrc)) {
+  copyFile(fallbackScriptSrc, fallbackScriptDest);
+}
+
+// Copy the script injector
+const injectorScriptSrc = path.join(__dirname, 'script-injector.js');
+const injectorScriptDest = path.join(__dirname, 'dist', 'script-injector.js');
+if (fs.existsSync(injectorScriptSrc)) {
+  copyFile(injectorScriptSrc, injectorScriptDest);
+}
+
 console.log('Asset copying complete!');

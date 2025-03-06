@@ -7,10 +7,21 @@
   AddType application/font-woff2 .woff2
   AddType application/vnd.ms-fontobject .eot
   AddType application/x-font-ttf .ttf
+  AddType video/quicktime .mov
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+  AddType video/ogg .ogv
 </IfModule>
 
 # Enable CORS for font files
 <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+  <IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+  </IfModule>
+</FilesMatch>
+
+# Enable CORS for video files
+<FilesMatch "\.(mov|mp4|webm|ogv)$">
   <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
   </IfModule>
@@ -36,6 +47,10 @@ ErrorDocument 404 /index.html
   ExpiresByType image/gif "access plus 1 year"
   ExpiresByType image/png "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType video/quicktime "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType video/webm "access plus 1 year"
+  ExpiresByType video/ogg "access plus 1 year"
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType text/html "access plus 1 day"

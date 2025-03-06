@@ -161,4 +161,12 @@ if (fs.existsSync(videoEnhancerSrc)) {
   copyFile(videoEnhancerSrc, videoEnhancerDest);
 }
 
+// Manually copy index.html from root to dist directory if needed
+const indexHtmlSrc = path.join(__dirname, 'index.html');
+const indexHtmlDest = path.join(__dirname, 'dist', 'index.html');
+if (fs.existsSync(indexHtmlSrc) && !fs.existsSync(indexHtmlDest)) {
+  console.log('Index.html not found in dist directory. Copying from root...');
+  copyFile(indexHtmlSrc, indexHtmlDest);
+}
+
 console.log('Asset copying complete!');

@@ -1,27 +1,31 @@
 {
-  "name": "expandingroundedmenu",
+  "name": "portfolio",
   "version": "1.0.0",
   "browserslist": "> 0.5%, last 2 versions, not dead",
-  "description": "",
+  "description": "Portfolio site with card expansion effect",
   "scripts": {
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "npm run clean && npm run build:parcel"
+    "build": "npm run clean && npm run build:parcel",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/codrops/[NAME].git"
+    "url": "git://github.com/cpalmer-ios/portfolio.git"
   },
-  "keywords": [],
-  "author": "Codrops",
+  "keywords": ["portfolio", "cards", "animation"],
+  "author": "Chris Palmer",
   "license": "MIT",
-  "homepage": "https://tympanus.net/codrops",
+  "homepage": "https://cpalmer-ios.github.io/portfolio",
   "bugs": {
-    "url": "https://github.com/codrops/[NAME]/issues"
+    "url": "https://github.com/cpalmer-ios/portfolio/issues"
   },
   "dependencies": {
     "gsap": "^3.9.1",
     "parcel": "latest"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.0"
   }
 }

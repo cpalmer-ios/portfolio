@@ -7,7 +7,7 @@
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "npm run clean && npm run build:parcel",
+    "build": "npm run clean && npm run build:parcel && cp CNAME dist/",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {
@@ -17,7 +17,7 @@
   "keywords": ["portfolio", "cards", "animation"],
   "author": "Chris Palmer",
   "license": "MIT",
-  "homepage": "https://cpalmer-ios.github.io/portfolio",
+  "homepage": "https://web-dek.uk",
   "bugs": {
     "url": "https://github.com/cpalmer-ios/portfolio/issues"
   },

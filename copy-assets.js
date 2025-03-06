@@ -108,4 +108,32 @@ if (fs.existsSync(injectorScriptSrc)) {
   copyFile(injectorScriptSrc, injectorScriptDest);
 }
 
+// Copy the domain verification file
+const verificationSrc = path.join(__dirname, 'github-domain-verification.txt');
+const verificationDest = path.join(__dirname, 'dist', 'github-domain-verification.txt');
+if (fs.existsSync(verificationSrc)) {
+  copyFile(verificationSrc, verificationDest);
+}
+
+// Copy the GSAP error fix script
+const gsapFixSrc = path.join(__dirname, 'js', 'fix-gsap-errors.js');
+const gsapFixDest = path.join(__dirname, 'dist', 'js', 'fix-gsap-errors.js');
+if (fs.existsSync(gsapFixSrc)) {
+  copyFile(gsapFixSrc, gsapFixDest);
+}
+
+// Copy the HMR disable script
+const hmrDisableSrc = path.join(__dirname, 'js', 'disable-hmr.js');
+const hmrDisableDest = path.join(__dirname, 'dist', 'js', 'disable-hmr.js');
+if (fs.existsSync(hmrDisableSrc)) {
+  copyFile(hmrDisableSrc, hmrDisableDest);
+}
+
+// Copy the demo fix script
+const demoFixSrc = path.join(__dirname, 'js', 'demo-fix.js');
+const demoFixDest = path.join(__dirname, 'dist', 'js', 'demo-fix.js');
+if (fs.existsSync(demoFixSrc)) {
+  copyFile(demoFixSrc, demoFixDest);
+}
+
 console.log('Asset copying complete!');

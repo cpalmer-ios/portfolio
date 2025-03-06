@@ -9,7 +9,7 @@
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
     "copy-assets": "node copy-assets.js",
     "post-process": "node post-process-html.js",
-    "build": "npm run clean && npm run build:parcel && npm run copy-assets && cp CNAME .htaccess _redirects dist/ && npm run post-process",
+    "build": "npm run clean && npm run build:parcel && npm run copy-assets && cp CNAME .htaccess _redirects github-domain-verification.txt dist/ && npm run post-process",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {

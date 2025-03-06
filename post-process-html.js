@@ -34,6 +34,13 @@ if (fs.existsSync(demoFixPath)) {
   demoFixScript = fs.readFileSync(demoFixPath, 'utf8');
 }
 
+// Read the content of the video-enhancer.js file
+const videoEnhancerPath = path.join(__dirname, 'js', 'video-enhancer.js');
+let videoEnhancerScript = '';
+if (fs.existsSync(videoEnhancerPath)) {
+  videoEnhancerScript = fs.readFileSync(videoEnhancerPath, 'utf8');
+}
+
 // Check if our script injector is already included
 if (html.includes('script-injector.js')) {
   console.log('Script injector already present in HTML');
@@ -44,18 +51,6 @@ if (html.includes('script-injector.js')) {
   // Write the updated HTML back to the file
   fs.writeFileSync(htmlPath, html);
   console.log('Successfully added script injector to HTML');
-}
-
-// Just to be extra sure - create an inline script version too
-const scriptTag = '<script>document.addEventListener("DOMContentLoaded",function(){const e=document.createElement("script");e.src="./video-fallback.js",e.async=!0,document.head.appendChild(e),console.log("Video fallback script injected")});</script>';
-
-// Add this script just before the closing </body> tag if it's not already there
-if (!html.includes('video-fallback.js')) {
-  html = html.replace('</body>', scriptTag + '</body>');
-  
-  // Write the updated HTML back to the file
-  fs.writeFileSync(htmlPath, html);
-  console.log('Successfully added inline script to HTML');
 }
 
 // Add the GSAP error fix and HMR disable scripts INLINE at the beginning of head
@@ -76,6 +71,23 @@ ${hmrDisableScript}
   // Write the updated HTML back to the file
   fs.writeFileSync(htmlPath, html);
   console.log('Successfully added inline fix scripts to HTML');
+}
+
+// Add the video enhancer script early in the <head> to ensure it loads before page rendering
+if (!html.includes('Video enhancer running')) {
+  // Add the enhanced video script
+  const videoEnhancerTag = `<script>${videoEnhancerScript}</script>`;
+  
+  // Add it early in the <head> but after the GSAP fixes
+  if (html.includes('GSAP error prevention')) {
+    html = html.replace('</script>\n', '</script>\n' + videoEnhancerTag);
+  } else {
+    html = html.replace('<head>', '<head>\n' + videoEnhancerTag);
+  }
+  
+  // Write the updated HTML back to the file
+  fs.writeFileSync(htmlPath, html);
+  console.log('Successfully added video enhancer script to HTML');
 }
 
 // Add the demo-fix script just before the closing </body> tag

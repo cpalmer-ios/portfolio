@@ -46,7 +46,7 @@ This will:
 
 Several configuration files have been set up to ensure proper deployment:
 
-1. **CNAME** - Contains your custom domain (web-dek.uk)
+1. **CNAME** - Contains your custom domain (web-dev.uk)
 2. **.htaccess** - Contains server configuration for proper file handling
 3. **_redirects** - For Netlify deployments (optional)
 4. **netlify.toml** - For Netlify deployments (optional)

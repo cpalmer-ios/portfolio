@@ -84,14 +84,32 @@ srcDirs.forEach(dir => {
 });
 
 // Special handling for the jfish1.mov file
-const jfishSrcPath = path.join(__dirname, 'img', 'jfish1.mov');
-const jfishDistPath = path.join(__dirname, 'dist', 'jfish1.mov');
-const jfishBackupDistPath = path.join(__dirname, 'dist', 'jfish1.e9bd588f.mov');
-
+const sourceDir = __dirname;
+const distDir = path.join(__dirname, 'dist');
+const jfishSrcPath = path.join(sourceDir, 'img', 'jfish1.mov');
 if (fs.existsSync(jfishSrcPath)) {
-  copyFile(jfishSrcPath, jfishDistPath);
-  // Also add a copy with the Parcel hash format in case that's what the HTML references
-  copyFile(jfishSrcPath, jfishBackupDistPath);
+  // Copy to multiple locations to maximize the chance it's found
+  const jfishDestPaths = [
+    path.join(distDir, 'jfish1.mov'),              // Root directory
+    path.join(distDir, 'img', 'jfish1.mov'),       // img directory
+    path.join(distDir, 'jfish1.e9bd588f.mov')      // Hashed version in root
+  ];
+  
+  // Ensure img directory exists
+  const imgDir = path.join(distDir, 'img');
+  if (!fs.existsSync(imgDir)) {
+    fs.mkdirSync(imgDir, { recursive: true });
+  }
+  
+  // Copy to all destinations
+  jfishDestPaths.forEach(destPath => {
+    try {
+      copyFile(jfishSrcPath, destPath);
+      console.log(`Copied: ${jfishSrcPath} -> ${destPath}`);
+    } catch (error) {
+      console.error(`Error copying to ${destPath}:`, error);
+    }
+  });
 }
 
 // Copy the video fallback script
@@ -134,6 +152,13 @@ const demoFixSrc = path.join(__dirname, 'js', 'demo-fix.js');
 const demoFixDest = path.join(__dirname, 'dist', 'js', 'demo-fix.js');
 if (fs.existsSync(demoFixSrc)) {
   copyFile(demoFixSrc, demoFixDest);
+}
+
+// Copy the enhanced video script
+const videoEnhancerSrc = path.join(__dirname, 'js', 'video-enhancer.js');
+const videoEnhancerDest = path.join(__dirname, 'dist', 'js', 'video-enhancer.js');
+if (fs.existsSync(videoEnhancerSrc)) {
+  copyFile(videoEnhancerSrc, videoEnhancerDest);
 }
 
 console.log('Asset copying complete!');

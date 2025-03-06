@@ -28,4 +28,4 @@ jobs:
         with:
           folder: dist
           branch: gh-pages
-          cname: web-dek.uk
+          cname: web-dev.uk

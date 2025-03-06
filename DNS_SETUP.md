@@ -1,4 +1,4 @@
-# DNS Configuration for web-dek.uk
+# DNS Configuration for web-dev.uk
 
 ## The Problem: InvalidDNSError
 
@@ -15,12 +15,12 @@ This means GitHub Pages couldn't verify your DNS records. Here's how to fix it:
 2. Scroll down to "GitHub Pages" section
 3. Make sure that:
    - Source is set to gh-pages branch (or your deployment branch)
-   - Custom domain is set to `web-dek.uk`
+   - Custom domain is set to `web-dev.uk`
    - HTTPS is enforced (if available)
 
 ## Step 2: Configure DNS with Your Domain Provider
 
-### Option 1: Using an Apex Domain (web-dek.uk)
+### Option 1: Using an Apex Domain (web-dev.uk)
 
 Add these A records pointing to GitHub Pages' IP addresses:
 ```
@@ -30,7 +30,7 @@ A    @    185.199.110.153
 A    @    185.199.111.153
 ```
 
-### Option 2: Using a www subdomain (www.web-dek.uk)
+### Option 2: Using a www subdomain (www.web-dev.uk)
 
 Add a CNAME record:
 ```
@@ -51,7 +51,7 @@ If you want both the apex domain and www subdomain to work:
 
 Ensure you have a CNAME file in the root of your repository with only the domain:
 ```
-web-dek.uk
+web-dev.uk
 ```
 
 This file should be committed to your main branch AND your gh-pages branch (or deployment branch).
@@ -62,11 +62,11 @@ After configuring DNS records, they may take up to 24-48 hours to fully propagat
 
 You can verify DNS configuration using these commands:
 ```
-dig web-dek.uk +noall +answer
-dig www.web-dek.uk +noall +answer
+dig web-dev.uk +noall +answer
+dig www.web-dev.uk +noall +answer
 ```
 
-For the apex domain (web-dek.uk), you should see A records pointing to GitHub's IPs.
+For the apex domain (web-dev.uk), you should see A records pointing to GitHub's IPs.
 For www subdomain, you should see a CNAME record pointing to your GitHub Pages URL.
 
 ## Step 5: Check GitHub Pages Status
@@ -81,7 +81,7 @@ For www subdomain, you should see a CNAME record pointing to your GitHub Pages U
 2. **Check CNAME Format**: Make sure it contains ONLY your domain name with no trailing spaces
 3. **Confirm IPs**: GitHub occasionally updates their IPs, check their docs for the latest ones
 4. **Domain Provider Restrictions**: Some providers have special requirements for apex domains
-5. **Try Alternate Name**: If web-dek.uk doesn't work, try www.web-dek.uk as your primary domain
+5. **Try Alternate Name**: If web-dev.uk doesn't work, try www.web-dev.uk as your primary domain
 
 ## Additional Resources
 
@@ -94,8 +94,8 @@ After configuring DNS records, they may take up to 24 hours to propagate.
 
 You can verify DNS configuration using:
 ```
-dig web-dek.uk +noall +answer
-dig www.web-dek.uk +noall +answer
+dig web-dev.uk +noall +answer
+dig www.web-dev.uk +noall +answer
 ```
 
 ## Check DNS Propagation
@@ -109,6 +109,6 @@ You can check DNS propagation status at:
 In your repository settings, under "Pages":
 1. Select "Deploy from a branch" as the source
 2. Choose "gh-pages" as the branch
-3. Enter your custom domain "web-dek.uk"
+3. Enter your custom domain "web-dev.uk"
 4. Click "Save"
 5. Optionally, enable "Enforce HTTPS" after DNS propagation is complete

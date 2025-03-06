@@ -71,7 +71,7 @@
   conditions = {Path = {exclude = ["*.js", "*.css", "*.svg", "*.jpg", "*.jpeg", "*.png", "*.gif", "*.ico", "*.woff", "*.woff2", "*.ttf", "*.eot", "*.mov", "*.mp4", "*.webm", "*.ogv"]}}
 
 [[redirects]]
-  from = "https://www.web-dek.uk/*"
-  to = "https://web-dek.uk/:splat"
+  from = "https://www.web-dev.uk/*"
+  to = "https://web-dev.uk/:splat"
   status = 301
   force = true

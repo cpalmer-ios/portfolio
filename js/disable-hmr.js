@@ -24,7 +24,7 @@
     // Prevent WebSocket connection attempts
     const originalWebSocket = window.WebSocket;
     window.WebSocket = function(url, protocols) {
-      if (url.includes('web-dev.uk') || url.includes('web-dek.uk')) {
+      if (url.includes('web-dev.uk') || url.includes('web-dev.uk')) {
         console.log('Blocked WebSocket connection to HMR server in production');
         // Return a dummy WebSocket object
         return {

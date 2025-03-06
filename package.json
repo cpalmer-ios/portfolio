@@ -7,7 +7,8 @@
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "npm run clean && npm run build:parcel && cp CNAME dist/",
+    "copy-assets": "node copy-assets.js",
+    "build": "npm run clean && npm run build:parcel && npm run copy-assets && cp CNAME .htaccess _redirects dist/",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {

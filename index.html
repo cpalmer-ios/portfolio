@@ -2,8 +2,167 @@
 <html lang="en" class="no-js">
 
 <head>
-<script src="./js/disable-hmr.js"></script>
-<script src="./js/fix-gsap-errors.js"></script>
+<script>
+// GSAP Error Fix
+/**
+ * This script fixes GSAP null target errors by intercepting them before they happen
+ * It executes immediately as an IIFE (Immediately Invoked Function Expression)
+ */
+(function() {
+  // Create a MutationObserver to watch for GSAP loading
+  const observer = new MutationObserver(function(mutations) {
+    for (let mutation of mutations) {
+      if (mutation.type === 'childList' && mutation.addedNodes.length) {
+        for (let node of mutation.addedNodes) {
+          if (node.tagName === 'SCRIPT' && (node.src.includes('gsap') || node.textContent.includes('gsap'))) {
+            // GSAP script detected, apply our fix before it initializes
+            applyGsapFix();
+          }
+        }
+      }
+    }
+  });
+
+  // Start observing the document
+  observer.observe(document.documentElement, { 
+    childList: true, 
+    subtree: true 
+  });
+  
+  // Function to apply the GSAP fix
+  function applyGsapFix() {
+    // Wait for a tiny bit to ensure GSAP has loaded
+    setTimeout(function() {
+      if (window.gsap) {
+        // Store original methods
+        const originalWarn = window.gsap.core._warn;
+        const originalTo = window.gsap.to;
+        const originalFrom = window.gsap.from;
+        const originalFromTo = window.gsap.fromTo;
+        
+        // Override _warn to suppress null target errors
+        window.gsap.core._warn = function(message) {
+          if (!message.includes('target null not found')) {
+            originalWarn.apply(this, arguments);
+          }
+        };
+        
+        // Override animation methods with null-checking versions
+        window.gsap.to = function(targets, config, position) {
+          if (!targets || 
+              (typeof targets === 'string' && !document.querySelector(targets)) ||
+              (targets.length === 0) || 
+              targets === null) {
+            console.log('GSAP target not found, animation skipped');
+            return { 
+              to: window.gsap.to,
+              from: window.gsap.from,
+              fromTo: window.gsap.fromTo,
+              add: function() { return this; },
+              addLabel: function() { return this; }
+            };
+          }
+          return originalTo.call(window.gsap, targets, config, position);
+        };
+        
+        window.gsap.from = function(targets, config, position) {
+          if (!targets || 
+              (typeof targets === 'string' && !document.querySelector(targets)) ||
+              (targets.length === 0) || 
+              targets === null) {
+            console.log('GSAP target not found, animation skipped');
+            return {
+              to: window.gsap.to,
+              from: window.gsap.from,
+              fromTo: window.gsap.fromTo,
+              add: function() { return this; },
+              addLabel: function() { return this; }
+            };
+          }
+          return originalFrom.call(window.gsap, targets, config, position);
+        };
+        
+        window.gsap.fromTo = function(targets, fromConfig, toConfig, position) {
+          if (!targets || 
+              (typeof targets === 'string' && !document.querySelector(targets)) ||
+              (targets.length === 0) || 
+              targets === null) {
+            console.log('GSAP target not found, animation skipped');
+            return {
+              to: window.gsap.to,
+              from: window.gsap.from,
+              fromTo: window.gsap.fromTo,
+              add: function() { return this; },
+              addLabel: function() { return this; }
+            };
+          }
+          return originalFromTo.call(window.gsap, targets, fromConfig, toConfig, position);
+        };
+        
+        console.log('GSAP error prevention initialized');
+      }
+    }, 10);
+  }
+  
+  // Also try to apply the fix immediately in case GSAP is already loaded
+  if (window.gsap) {
+    applyGsapFix();
+  }
+  
+  // Also try on DOMContentLoaded event
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.gsap) {
+      applyGsapFix();
+    }
+  });
+})();
+
+
+// HMR Disable Script
+/**
+ * This script disables HMR (Hot Module Replacement) in production
+ * to prevent WebSocket connection errors in the console
+ */
+(function() {
+  // Check if we're in production (not localhost)
+  const isProduction = 
+    window.location.hostname !== 'localhost' && 
+    window.location.hostname !== '127.0.0.1';
+  
+  if (isProduction) {
+    // Disable HMR by overriding Parcel's HMR functions
+    if (window.HMR_RUNTIME) {
+      console.log('Disabling HMR in production');
+      window.HMR_RUNTIME.createHotModuleReplacementRuntimeModule = function() {
+        return {
+          dispose: function() {},
+          accept: function() {},
+          invalidate: function() {}
+        };
+      };
+    }
+    
+    // Prevent WebSocket connection attempts
+    const originalWebSocket = window.WebSocket;
+    window.WebSocket = function(url, protocols) {
+      if (url.includes('web-dev.uk') || url.includes('web-dek.uk')) {
+        console.log('Blocked WebSocket connection to HMR server in production');
+        // Return a dummy WebSocket object
+        return {
+          close: function() {},
+          send: function() {},
+          addEventListener: function() {},
+          removeEventListener: function() {}
+        };
+      }
+      
+      // For other WebSocket connections, use the original implementation
+      return new originalWebSocket(url, protocols);
+    };
+  }
+})();
+
+</script>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -934,6 +1093,84 @@
     <!-- SplitType for text manipulation: https://github.com/lukePeavey/SplitType -->
     <script src="/index.dbdd2c0f.js"></script>
 	<script src="/index.b95ba3bf.js"></script>
-<script>document.addEventListener("DOMContentLoaded",function(){const e=document.createElement("script");e.src="./video-fallback.js",e.async=!0,document.head.appendChild(e),console.log("Video fallback script injected")});</script></body>
+<script>document.addEventListener("DOMContentLoaded",function(){const e=document.createElement("script");e.src="./video-fallback.js",e.async=!0,document.head.appendChild(e),console.log("Video fallback script injected")});</script><script>/**
+ * This script specifically fixes the GSAP animations in demo.js
+ * It ensures the DOM elements exist before animations are attempted
+ */
+(function() {
+  // Function to patch the DOM object in demo.js
+  function patchDemoDOM() {
+    // Wait for the demo script to execute
+    setTimeout(function() {
+      if (window.g2DDQ && window.g2DDQ.gsap) {
+        console.log('Patching demo.js DOM references');
+        
+        // Get the timeline variable reference from demo.js
+        const timeline = window.menuTimeline || {};
+        
+        // Check if we already patched
+        if (timeline._patched) return;
+        
+        // Check if any menu elements exist and create placeholders if needed
+        const ensureElementExists = function(selector, parent) {
+          // If parent is specified, check inside that
+          const container = parent || document;
+          let element = container.querySelector(selector);
+          
+          // If element doesn't exist, create a dummy element that won't affect page
+          if (!element) {
+            console.log('Creating placeholder for missing element:', selector);
+            element = document.createElement('div');
+            element.style.display = 'none';
+            element.className = selector.replace('.', '');
+            document.body.appendChild(element);
+          }
+          
+          return element;
+        };
+        
+        // Ensure all the DOM elements referenced in demo.js exist
+        if (typeof DOM !== 'undefined') {
+          if (DOM.cover) {
+            DOM.cover.wrap = ensureElementExists('.cover-wrap');
+            DOM.cover.outer = ensureElementExists('.cover');
+            DOM.cover.inner = ensureElementExists('.cover__inner');
+          }
+          
+          if (DOM.content) {
+            if (!DOM.content.imgs || DOM.content.imgs.length === 0) {
+              DOM.content.imgs = [ensureElementExists('.wrapper-jfish')];
+            }
+            
+            if (!DOM.content.titles || DOM.content.titles.length === 0) {
+              DOM.content.titles = [ensureElementExists('.content__text')];
+            }
+          }
+          
+          DOM.menu = DOM.menu || ensureElementExists('.menu');
+          DOM.menuContent = DOM.menuContent || ensureElementExists('.menu__content');
+          DOM.closeCtrl = DOM.closeCtrl || ensureElementExists('.menu__back');
+        }
+        
+        // Mark as patched
+        if (timeline) {
+          timeline._patched = true;
+        }
+      }
+    }, 500); // Give demo.js time to load
+  }
+  
+  // Check if the document is already loaded
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    patchDemoDOM();
+  } else {
+    // Otherwise wait for DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', patchDemoDOM);
+  }
+  
+  // Try again after window load to be sure
+  window.addEventListener('load', patchDemoDOM);
+})();
+</script></body>
 
 </html>

@@ -1,7 +1,0 @@
-# Redirects file for Netlify
-
-# Handle SPA routing - serve index.html for all paths
-/*    /index.html   200
-
-# Redirect www subdomain to apex domain
-https://www.web-dev.uk/* https://web-dev.uk/:splat 301!

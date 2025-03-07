@@ -1,5 +1,5 @@
 // Defines a debounce function to limit the rate at which a function can fire.
-export const debounce = (func, delay) => {
+const debounce = (func, delay) => {
     let timerId; // Holds a reference to the timeout between calls.
     return (...args) => {
       clearTimeout(timerId); // Clears the current timeout, if any, to reset the debounce timer.
@@ -10,7 +10,7 @@ export const debounce = (func, delay) => {
   };
 
 // Defines a class to split text into lines, words and characters for animation.
-export class TextSplitter {
+class TextSplitter {
   // Constructor for TextScrollEffect which sets up the text animation.
   // Parameters:
   //   textElement: HTMLElement - The DOM element that contains the text to be animated.

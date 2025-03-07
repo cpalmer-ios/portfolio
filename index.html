@@ -9,84 +9,85 @@
  * It runs before Snap.svg is loaded to ensure the eve object exists
  */
 (function() {
+  console.log('Snap.svg fix running...');
+  
   // Create a global eve object before Snap.svg loads
-  window.eve = window.eve || function(event, param) {
-    eve.listeners = eve.listeners || {};
-    eve.listeners[event] = eve.listeners[event] || [];
+  if (!window.eve) {
+    window.eve = function() {
+      var args = Array.prototype.slice.call(arguments);
+      eve.listeners = eve.listeners || {};
+      var name = args.shift();
+      var listeners = eve.listeners[name] || [];
+      var result;
+      
+      for (var i = 0, ii = listeners.length; i < ii; i++) {
+        result = listeners[i].apply(window, args);
+      }
+      
+      return result;
+    };
     
-    const handlers = eve.listeners[event];
-    if (handlers) {
-      for (let i = 0; i < handlers.length; i++) {
-        handlers[i](param);
+    // Add core eve functionality
+    eve.on = function(name, f) {
+      eve.listeners = eve.listeners || {};
+      var names = name.split(/\s+/);
+      for (var i = 0; i < names.length; i++) {
+        eve.listeners[names[i]] = eve.listeners[names[i]] || [];
+        eve.listeners[names[i]].push(f);
       }
-    }
-    return eve;
-  };
-  
-  // Add necessary methods to eve
-  eve.on = function(name, f) {
-    eve.listeners = eve.listeners || {};
-    eve.listeners[name] = eve.listeners[name] || [];
-    eve.listeners[name].push(f);
-    return function() {
-      eve.listeners[name] = eve.listeners[name] || [];
-      for (let i = 0; i < eve.listeners[name].length; i++) {
-        if (eve.listeners[name][i] === f) {
-          eve.listeners[name].splice(i, 1);
-          break;
-        }
-      }
-    };
-  };
-  
-  eve.once = function(name, f) {
-    const handler = function() {
-      f.apply(this, arguments);
-      return eve.off(name, handler);
-    };
-    return eve.on(name, handler);
-  };
-  
-  eve.off = function(name, f) {
-    if (!name) {
-      eve.listeners = {};
-      return;
-    }
-    if (!f) {
-      eve.listeners[name] = [];
-      return;
-    }
-    eve.listeners[name] = eve.listeners[name] || [];
-    for (let i = 0; i < eve.listeners[name].length; i++) {
-      if (eve.listeners[name][i] === f) {
-        eve.listeners[name].splice(i, 1);
-        break;
-      }
-    }
-  };
-  
-  // Let's make sure it gets applied to Snap when it loads
-  const originalScriptElem = Element.prototype.appendChild;
-  Element.prototype.appendChild = function(element) {
-    if (element.tagName === 'SCRIPT' && element.src && element.src.indexOf('snap.svg') > -1) {
-      // This is the Snap.svg script - add an onload handler to patch it
-      element.onload = function() {
-        if (window.Snap && !window.Snap.eve) {
-          console.log('Applying eve fix to Snap.svg');
-          window.Snap.eve = window.eve;
+      return function() {
+        for (var i = 0; i < names.length; i++) {
+          var listeners = eve.listeners[names[i]] || [];
+          for (var j = 0; j < listeners.length; j++) {
+            if (listeners[j] === f) {
+              listeners.splice(j, 1);
+              break;
+            }
+          }
         }
       };
-    }
-    return originalScriptElem.call(this, element);
-  };
+    };
+    
+    eve.off = function(name, f) {
+      if (!name) {
+        eve.listeners = {};
+        return;
+      }
+      var names = name.split(/\s+/);
+      for (var i = 0; i < names.length; i++) {
+        if (!eve.listeners[names[i]]) {
+          continue;
+        }
+        if (!f) {
+          eve.listeners[names[i]] = [];
+          continue;
+        }
+        var listeners = eve.listeners[names[i]] || [];
+        for (var j = 0; j < listeners.length; j++) {
+          if (listeners[j] === f) {
+            listeners.splice(j, 1);
+            break;
+          }
+        }
+      }
+    };
+    
+    eve.once = function(name, f) {
+      var onceFn = function() {
+        var result = f.apply(this, arguments);
+        eve.off(name, onceFn);
+        return result;
+      };
+      return eve.on(name, onceFn);
+    };
+    
+    console.log('Eve object created for Snap.svg');
+  } else {
+    console.log('Eve object already exists');
+  }
   
-  // Also check on DOMContentLoaded in case Snap was loaded via a different method
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.Snap && !window.Snap.eve) {
-      console.log('Applying eve fix to Snap.svg after DOM load');
-      window.Snap.eve = window.eve;
-    }
-  });
+  // Also make sure Snap exists as an object to avoid other errors
+  window.Snap = window.Snap || {};
 })();
 
 
@@ -213,164 +214,157 @@
 (function() {
   console.log('Import fix script running');
   
-  // Create proper module resolution for ES6 imports
-  const defineModule = function(name, factory) {
-    // For ES6 imports in standard browsers
-    if (typeof window !== 'undefined') {
-      window[name] = factory();
-    }
-    
-    // For CommonJS environments
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-      module.exports = factory();
-    }
-    
-    // For AMD/RequireJS
-    if (typeof define === 'function' && define.amd) {
-      define(name, [], factory);
-    }
-    
-    // For dynamic imports
-    if (typeof window !== 'undefined') {
-      const originalImport = window.import;
-      window.import = function(modulePath) {
-        if (modulePath === name || modulePath.endsWith('/' + name) || modulePath.endsWith('/' + name + '.js')) {
-          return Promise.resolve({ 
-            [name]: factory(),
-            default: factory()
-          });
-        }
-        return originalImport ? originalImport.apply(window, arguments) : Promise.reject(new Error('Native import not supported'));
-      };
-    }
-    
-    // Support for various module map configurations
-    if (typeof window.System !== 'undefined' && window.System.register) {
-      window.System.register(name, [], function(exports) {
-        return {
-          setters: [],
-          execute: function() {
-            const module = factory();
-            exports(name, module);
-            exports('default', module);
-          }
-        };
-      });
-    }
-    
-    // ES6 module shim
-    try {
-      if (!window[name + '_importShim']) {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.textContent = `
-          import * as polyfill from './${name}.js';
-          window.${name}Module = polyfill;
-        `;
-        document.head.appendChild(script);
-        window[name + '_importShim'] = true;
-      }
-    } catch (e) {
-      console.warn('Failed to create ES6 module shim:', e);
-    }
-  };
-
+  // Check if SplitType exists, if not look for it in vendor scripts
+  if (typeof window.SplitType === 'undefined') {
+    console.log('SplitType not found, looking for it in vendor scripts');
+    // Will be created by our polyfill if not found
+  }
+  
   // Fix GSAP module import issue
-  if (window.TweenMax && !window.gsap) {
-    console.log('Creating gsap compatibility layer from TweenMax');
+  const fixGSAPImports = function() {
+    // Create a global module mapping to resolve ES module imports
+    window.__modules = window.__modules || {};
     
-    // Create a comprehensive GSAP compatibility layer
-    const createGSAP = function() {
-      // Basic GSAP API from TweenMax
-      const gsap = {
-        to: window.TweenMax.to,
-        from: window.TweenMax.from,
-        fromTo: window.TweenMax.fromTo,
-        set: window.TweenMax.set,
+    // Module name to global variable mapping
+    const moduleMap = {
+      'gsap': window.gsap || window.TweenMax,
+      'gsap/dist/gsap': window.gsap || window.TweenMax,
+      'gsap/Draggable': window.Draggable,
+      'gsap/ScrollTrigger': window.ScrollTrigger,
+      'split-type': window.SplitType
+    };
+    
+    // Create the GSAP module if needed using TweenMax/TweenLite as fallback
+    if (!window.gsap && (window.TweenMax || window.TweenLite)) {
+      console.log('Creating GSAP compatibility layer from TweenMax/TweenLite');
+      
+      // Use TweenMax or TweenLite as a base
+      const tweenBase = window.TweenMax || window.TweenLite;
+      
+      // Basic GSAP API from TweenMax/TweenLite
+      window.gsap = {
+        to: tweenBase.to,
+        from: tweenBase.from,
+        fromTo: tweenBase.fromTo,
+        set: tweenBase.set,
         timeline: function(vars) {
-          return window.TweenMax.timeline(vars);
-        },
-        getProperty: function(target, property, unit) {
-          let value;
-          try {
-            if (typeof property === 'string') {
-              // Simple property handling
-              if (property === 'x' || property === 'y' || property === 'z') {
-                value = target._gsTransform ? target._gsTransform[property] || 0 : 0;
-              } else {
-                const style = window.getComputedStyle(target);
-                value = style[property];
-                if (unit === false && value.endsWith('px')) {
-                  value = parseFloat(value);
-                }
-              }
-            }
-          } catch (e) {
-            console.warn('Error in gsap.getProperty:', e);
-          }
-          return value;
-        },
-        registerPlugin: function() {
-          console.log('GSAP registerPlugin called (compatibility mode)');
-          // Just return GSAP to allow chaining
-          return gsap;
-        },
-        core: {
-          _warn: function(message) {
-            console.warn("[GSAP Compat]:", message);
-          },
-          Tween: window.TweenMax,
-          Animation: window.TweenMax
+          return window.TimelineLite ? new window.TimelineLite(vars) : null;
         },
         utils: {
+          selector: function(selector) {
+            return document.querySelectorAll(selector);
+          },
           toArray: function(targets) {
             if (typeof targets === 'string') {
               return Array.from(document.querySelectorAll(targets));
             }
-            if (targets instanceof Element) {
-              return [targets];
-            }
-            if (targets instanceof NodeList || targets instanceof HTMLCollection) {
-              return Array.from(targets);
-            }
-            return Array.isArray(targets) ? targets : [targets];
-          },
-          selector: function(selector) {
-            return document.querySelector(selector);
-          },
-          wrap: function(elements, wrapper) {
-            elements = gsap.utils.toArray(elements);
-            const wrapperElement = typeof wrapper === 'string' 
-              ? document.createElement(wrapper) 
-              : wrapper;
-              
-            elements.forEach(el => {
-              const parent = el.parentNode;
-              parent.insertBefore(wrapperElement, el);
-              wrapperElement.appendChild(el);
-            });
-            
-            return wrapperElement;
+            return Array.from(targets || []);
           }
         }
       };
       
-      // Add cross-references to maintain compatibility
-      gsap.core.Tween.prototype.totalDuration = gsap.core.Tween.prototype.totalDuration || 
-        function() { return this.totalDuration ? this.totalDuration() : this.duration(); };
+      // Add Timeline and TimelineLite compatibility
+      if (window.TimelineLite) {
+        window.gsap.timeline = function(vars) {
+          return new window.TimelineLite(vars);
+        };
+      } else if (window.TimelineMax) {
+        window.gsap.timeline = function(vars) {
+          return new window.TimelineMax(vars);
+        };
+      }
+      
+      // Add additional GSAP plugins if available
+      if (window.CSSPlugin) {
+        window.gsap.registerPlugin = function(plugin) {
+          console.log('Plugin registration simulated:', plugin);
+        };
+      }
+      
+      // Update the module map with our new gsap object
+      moduleMap['gsap'] = window.gsap;
+      moduleMap['gsap/dist/gsap'] = window.gsap;
+    }
+    
+    // Override import for module support
+    if (window.HTMLScriptElement.supports && window.HTMLScriptElement.supports('importmap')) {
+      console.log('Browser supports importmap natively');
+    } else {
+      console.log('Creating importmap polyfill');
+      
+      // Handle dynamic imports
+      const originalImport = window.import;
+      window.import = function(specifier) {
+        const module = moduleMap[specifier];
+        if (module) {
+          return Promise.resolve({
+            default: module,
+            ...module
+          });
+        }
         
-      // Return the created gsap object
-      return gsap;
-    };
-    
-    // Create global gsap object
-    window.gsap = createGSAP();
-    
-    // Create module exports
-    defineModule('gsap', function() {
-      return window.gsap;
-    });
-  }
+        return originalImport ? originalImport.apply(window, arguments) 
+          : Promise.reject(new Error(`Module ${specifier} not found`));
+      };
+      
+      // Add an import map for proper module resolution
+      const importMap = {
+        imports: {}
+      };
+      
+      Object.keys(moduleMap).forEach(moduleName => {
+        if (moduleMap[moduleName]) {
+          importMap.imports[moduleName] = `data:text/javascript,export default globalThis.${moduleMap[moduleName].name || 'gsap'};`;
+        }
+      });
+      
+      // Add the import map to document head
+      const importMapScript = document.createElement('script');
+      importMapScript.type = 'importmap';
+      importMapScript.textContent = JSON.stringify(importMap);
+      document.head.appendChild(importMapScript);
+      
+      // Also patch the dynamic import error at script loading time
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName) {
+        const element = originalCreateElement.apply(document, arguments);
+        if (tagName.toLowerCase() === 'script') {
+          const originalSetAttribute = element.setAttribute;
+          element.setAttribute = function(name, value) {
+            if (name === 'type' && value === 'module') {
+              // Replace bare imports with full paths in the script content
+              const originalInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+              Object.defineProperty(element, 'innerHTML', {
+                set: function(content) {
+                  // Replace bare imports with our known modules
+                  Object.keys(moduleMap).forEach(moduleName => {
+                    const regex = new RegExp(`import\\s+(.+)\\s+from\\s+['"]${moduleName}['"]`, 'g');
+                    content = content.replace(regex, (match, importNames) => {
+                      return `// Patched import\nconst ${importNames} = window.${moduleName};`;
+                    });
+                    
+                    // Also fix dynamic imports
+                    const dynamicRegex = new RegExp(`import\\s*\\(['"]${moduleName}['"]\\)`, 'g');
+                    content = content.replace(dynamicRegex, `Promise.resolve(window.${moduleName})`);
+                  });
+                  
+                  originalInnerHTML.set.call(this, content);
+                },
+                get: function() {
+                  return originalInnerHTML.get.call(this);
+                }
+              });
+            }
+            return originalSetAttribute.call(this, name, value);
+          };
+        }
+        return element;
+      };
+    }
+  };
+  
+  // Run the GSAP fix
+  fixGSAPImports();
   
   // Handle Snap.svg eve issue - this is a fallback in case snap-svg-fix.js fails
   if (window.Snap && !window.Snap.eve && window.eve) {
@@ -646,8 +640,10 @@
   function enhanceVideo(videoElements) {
     videoElements.forEach(video => {
       // Disable any existing error handlers that might be causing issues
-      const existingErrorHandler = video.onerror;
-      video.onerror = null;
+      video.onerror = function(e) {
+        console.log('Video error event triggered:', e.target.error);
+        useVideoFallback(video);
+      };
       
       // Store original attributes
       const originalSrc = video.getAttribute('src') || '';
@@ -663,291 +659,209 @@
       
       // Force muted property (needed for autoplay in some browsers)
       video.muted = true;
-      video.defaultMuted = true;
       
-      // Try different video formats as fallbacks
-      // Check if we have a MOV but should try MP4 as well
-      const addMP4Fallback = originalSrc.toLowerCase().endsWith('.mov');
-      
-      // Create array of possible video sources
-      let possibleSources = [
-        // Try different paths with MOV
-        './img/jfish1.mov',                // Relative path in img folder
-        './jfish1.mov',                    // Root relative path
-        '/jfish1.mov',                     // Absolute path
-        '/img/jfish1.mov',                 // Absolute path in img folder
-        'jfish1.mov',                      // Simple filename
-        './jfish1.e9bd588f.mov',           // Hashed version
-        '/jfish1.e9bd588f.mov',            // Absolute hashed version
-        window.location.origin + '/img/jfish1.mov',  // Full URL in img folder
-        window.location.origin + '/jfish1.mov'      // Full URL in root
-      ];
-      
-      // Add MP4 versions as fallbacks if original was MOV
-      if (addMP4Fallback) {
-        possibleSources = possibleSources.concat([
-          // MP4 versions as fallbacks
-          './img/jfish1.mp4',
-          './jfish1.mp4',
-          '/jfish1.mp4',
-          '/img/jfish1.mp4',
-          'jfish1.mp4',
-          window.location.origin + '/img/jfish1.mp4',
-          window.location.origin + '/jfish1.mp4'
-        ]);
-      }
-      
-      // Add WebM versions as fallbacks
-      possibleSources = possibleSources.concat([
-        './img/jfish1.webm',
-        './jfish1.webm',
-        '/jfish1.webm',
-        '/img/jfish1.webm',
-        'jfish1.webm',
-        window.location.origin + '/img/jfish1.webm',
-        window.location.origin + '/jfish1.mp4'
-      ]);
-      
-      // Remove the src attribute to avoid errors when setting sources
-      video.removeAttribute('src');
-      
-      // Clear any existing source elements
-      while (video.firstChild) {
-        video.removeChild(video.firstChild);
-      }
-      
-      // Add MOV sources with correct MIME type
-      const movSources = possibleSources.filter(src => src.toLowerCase().endsWith('.mov'));
-      movSources.forEach(src => {
-        const source = document.createElement('source');
-        source.src = src;
-        source.type = 'video/quicktime';
-        video.appendChild(source);
-      });
-      
-      // Add MP4 sources with correct MIME type
-      const mp4Sources = possibleSources.filter(src => src.toLowerCase().endsWith('.mp4'));
-      mp4Sources.forEach(src => {
-        const source = document.createElement('source');
-        source.src = src;
-        source.type = 'video/mp4';
-        video.appendChild(source);
-      });
-      
-      // Add WebM sources with correct MIME type
-      const webmSources = possibleSources.filter(src => src.toLowerCase().endsWith('.webm'));
-      webmSources.forEach(src => {
-        const source = document.createElement('source');
-        source.src = src;
-        source.type = 'video/webm';
-        video.appendChild(source);
-      });
-      
-      // Create a fallback image for browsers that don't support video
-      const fallbackImg = document.createElement('img');
-      fallbackImg.src = './img/jfish1-fallback.jpg';
-      fallbackImg.alt = 'Jellyfish animation';
-      fallbackImg.style.width = '100%';
-      fallbackImg.style.height = '100%';
-      fallbackImg.style.objectFit = 'cover';
-      video.appendChild(fallbackImg);
-      
-      // Also set the src attribute to the original or first source as fallback
-      if (originalSrc) {
-        video.setAttribute('src', originalSrc);
-      }
-      
-      // Force load
-      try {
-        video.load();
+      // Add multiple sources for better browser compatibility
+      if (!video.querySelector('source')) {
+        // Only add sources if none exist already
+        const basePath = originalSrc.substring(0, originalSrc.lastIndexOf('.')) || 'jfish1';
         
-        // Add play handler that handles browser autoplay restrictions
-        const playHandler = function() {
-          if (video.paused) {
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-              playPromise.catch(e => {
-                console.log('Video play prevented by browser:', e);
-                
-                // Try again with user interaction once
-                if (!video._userInteractionHandlerAdded) {
-                  video._userInteractionHandlerAdded = true;
-                  
-                  // Add one-time handlers for user interaction events
-                  const userEvents = ['click', 'touchstart', 'keydown', 'scroll'];
-                  const userInteractionHandler = function() {
-                    video.play().catch(err => {
-                      console.log('Play still failed after user interaction:', err);
-                      
-                      // If video still fails to play, check for specific format issues
-                      if (err.name === 'NotSupportedError') {
-                        // Try changing to MP4 or WebM if MOV isn't supported
-                        const mp4Source = video.querySelector('source[type="video/mp4"]');
-                        if (mp4Source) {
-                          video.src = mp4Source.src;
-                          video.load();
-                          video.play().catch(e => console.log('MP4 fallback also failed:', e));
-                        }
-                      }
-                    });
-                    
-                    // Remove all event listeners after one triggers
-                    userEvents.forEach(evt => {
-                      document.removeEventListener(evt, userInteractionHandler);
-                    });
-                  };
-                  
-                  // Add the event listeners
-                  userEvents.forEach(evt => {
-                    document.addEventListener(evt, userInteractionHandler, { once: true });
-                  });
-                }
-              });
-            }
-          }
-        };
-        
-        // Try to play immediately
-        playHandler();
-        
-        // Also try after a delay
-        setTimeout(playHandler, 1000);
-        
-        // And after DOM content loaded
-        if (document.readyState !== 'complete') {
-          document.addEventListener('DOMContentLoaded', playHandler);
+        // Clear src attribute if we're adding source elements
+        if (originalSrc) {
+          video.removeAttribute('src');
         }
         
-        // And after full page load
-        window.addEventListener('load', playHandler);
+        // Add MP4 source first (most compatible)
+        const mp4Source = document.createElement('source');
+        mp4Source.type = 'video/mp4';
+        mp4Source.src = basePath + '.mp4';
+        video.appendChild(mp4Source);
         
-        // Add specific error handling for different browsers
-        video.addEventListener('error', function(e) {
-          console.log('Video error event triggered:', video.error);
+        // Add WebM source (better compression, modern browsers)
+        const webmSource = document.createElement('source');
+        webmSource.type = 'video/webm';
+        webmSource.src = basePath + '.webm';
+        video.appendChild(webmSource);
+        
+        // Add poster for initial display
+        video.setAttribute('poster', basePath + '-fallback.jpg');
+      }
+      
+      // Try to play the video
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Video play promise failed:', error);
           
-          // Check for specific error types
-          if (video.error && video.error.code === 4) {
-            // MEDIA_ERR_SRC_NOT_SUPPORTED
-            // Try the next source element
-            const sources = video.querySelectorAll('source');
-            let nextSourceFound = false;
-            
-            for (let i = 0; i < sources.length; i++) {
-              if (sources[i].src === video.src) {
-                if (i + 1 < sources.length) {
-                  // Try the next source
-                  video.src = sources[i + 1].src;
-                  video.load();
-                  video.play().catch(e => console.log('Next source also failed:', e));
-                  nextSourceFound = true;
-                  break;
-                }
-              }
-            }
-            
-            // If we couldn't find the next source or there isn't one
-            if (!nextSourceFound) {
-              // Check if any fallback image is available
-              const fallbackImg = video.querySelector('img');
-              if (fallbackImg) {
-                // Make sure image is visible
-                fallbackImg.style.display = 'block';
-              }
-            }
+          // Use the fallback for autoplay issues
+          if (error.name === 'NotAllowedError') {
+            console.log('Autoplay not allowed, using fallback image');
+            useVideoFallback(video);
+          } else {
+            // For other errors, try loading a different video format
+            tryDifferentFormats(video);
           }
         });
-      } catch (e) {
-        console.error('Error setting up video:', e);
       }
     });
   }
   
-  // Function to create a new video element if needed
-  function createVideoElement(wrapperElements) {
-    wrapperElements.forEach(wrapper => {
-      // Check if wrapper already has a video
-      if (wrapper.querySelector('video')) return;
-      
-      // Create a new video element
-      const video = document.createElement('video');
-      video.style.position = 'absolute';
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.style.objectFit = 'cover';
-      video.style.opacity = '1';
-      video.setAttribute('autoplay', '');
-      video.setAttribute('muted', '');
-      video.setAttribute('loop', '');
-      video.setAttribute('playsinline', ''); // For iOS
-      
-      // Add to wrapper
-      wrapper.appendChild(video);
-      
-      // Now enhance the newly created video
-      enhanceVideo([video]);
-    });
-  }
-  
-  // Check if we need to convert MOV files to MP4
-  function checkAndCreateMP4Fallbacks() {
-    // Check if we have mp4 versions of the video files
-    const mp4Path = './img/jfish1.mp4';
-    const mp4Exists = false; // We'll just attempt to create it anyway
+  // Function to try different video formats
+  function tryDifferentFormats(video) {
+    // Check if the browser can play MP4
+    const canPlayMP4 = video.canPlayType('video/mp4');
+    const canPlayWebM = video.canPlayType('video/webm');
+    const canPlayMov = video.canPlayType('video/quicktime');
     
-    if (!mp4Exists) {
-      // In a real production environment, we would generate MP4 versions
-      // For now, we'll just create a fallback image at least
-      createFallbackImage();
+    console.log('Browser video format support - MP4:', canPlayMP4, 'WebM:', canPlayWebM, 'MOV:', canPlayMov);
+    
+    // Replace all sources with appropriate format based on browser support
+    const sources = video.querySelectorAll('source');
+    const basePath = sources.length > 0 ? 
+      sources[0].src.substring(0, sources[0].src.lastIndexOf('.')) : 
+      'jfish1';
+    
+    // Clear existing sources
+    while (video.firstChild) {
+      video.removeChild(video.firstChild);
+    }
+    
+    // Add sources in order of browser preference
+    if (canPlayMP4) {
+      const source = document.createElement('source');
+      source.src = basePath + '.mp4';
+      source.type = 'video/mp4';
+      video.appendChild(source);
+    }
+    
+    if (canPlayWebM) {
+      const source = document.createElement('source');
+      source.src = basePath + '.webm';
+      source.type = 'video/webm';
+      video.appendChild(source);
+    }
+    
+    if (canPlayMov) {
+      const source = document.createElement('source');
+      source.src = basePath + '.mov';
+      source.type = 'video/quicktime';
+      video.appendChild(source);
+    }
+    
+    // Clear the src attribute
+    video.src = '';
+    
+    // Try to load and play again
+    video.load();
+    const playPromise = video.play();
+    if (playPromise) {
+      playPromise.catch(error => {
+        console.log('Still failed after format change:', error);
+        useVideoFallback(video);
+      });
     }
   }
   
-  // Create a fallback image for browsers that can't play the video
-  function createFallbackImage() {
-    // Instead of actually creating an image (which we can't do in JS),
-    // we'll check if one exists and add code to use it if it does
-    const imgPath = './img/jfish1-fallback.jpg';
-    
-    // Add fallback handling for video error events
-    document.addEventListener('DOMContentLoaded', function() {
-      const videos = document.querySelectorAll('video');
-      videos.forEach(video => {
-        video.addEventListener('error', function() {
-          // Try to add the fallback image if video fails
-          const wrapper = video.parentElement;
-          if (wrapper && wrapper.classList.contains('wrapper-jfish')) {
-            const existingImg = wrapper.querySelector('img');
-            if (!existingImg) {
-              const fallbackImg = document.createElement('img');
-              fallbackImg.src = imgPath;
-              fallbackImg.alt = 'Jellyfish animation';
-              fallbackImg.style.width = '100%';
-              fallbackImg.style.height = '100%';
-              fallbackImg.style.objectFit = 'cover';
-              wrapper.appendChild(fallbackImg);
-            }
-          }
+  // Function to create a new video element
+  function createVideoElement(wrapperElements) {
+    wrapperElements.forEach(wrapper => {
+      // Check if wrapper already contains a video
+      if (wrapper.querySelector('video')) return;
+      
+      // Create video element
+      const video = document.createElement('video');
+      video.className = 'video-background';
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = true;
+      video.setAttribute('playsinline', '');
+      
+      // Add MP4 source
+      const mp4Source = document.createElement('source');
+      mp4Source.src = './jfish1.mp4';
+      mp4Source.type = 'video/mp4';
+      video.appendChild(mp4Source);
+      
+      // Add WebM source
+      const webmSource = document.createElement('source');
+      webmSource.src = './jfish1.webm';
+      webmSource.type = 'video/webm';
+      video.appendChild(webmSource);
+      
+      // Add fallback image as poster
+      video.poster = './jfish1-fallback.jpg';
+      
+      // Add error handler
+      video.onerror = function() {
+        useVideoFallback(video);
+      };
+      
+      // Insert the video into the wrapper
+      wrapper.insertBefore(video, wrapper.firstChild);
+      
+      // Try to play
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Video play promise failed for created video:', error);
+          useVideoFallback(video);
         });
-      });
+      }
     });
   }
   
-  // Try immediately if document is already loaded
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    initializeVideo();
-    checkAndCreateMP4Fallbacks();
+  // Function to use a fallback image when video fails
+  function useVideoFallback(video) {
+    // Create an image element as fallback
+    const parent = video.parentElement;
+    if (!parent) return;
+    
+    // Check if fallback already exists
+    if (parent.querySelector('.video-fallback')) return;
+    
+    // Determine fallback image URL
+    let fallbackUrl = video.poster;
+    if (!fallbackUrl) {
+      // Try to get fallback from the src attribute or source elements
+      const source = video.querySelector('source') || video;
+      const src = source.getAttribute('src') || '';
+      fallbackUrl = src.replace(/\.(mp4|webm|mov)$/i, '-fallback.jpg');
+    }
+    
+    if (!fallbackUrl.includes('-fallback')) {
+      fallbackUrl = './jfish1-fallback.jpg';
+    }
+    
+    // Create the fallback image
+    const fallbackImg = document.createElement('img');
+    fallbackImg.className = 'video-fallback';
+    fallbackImg.src = fallbackUrl;
+    fallbackImg.alt = 'Video background';
+    fallbackImg.style.position = 'absolute';
+    fallbackImg.style.top = '0';
+    fallbackImg.style.left = '0';
+    fallbackImg.style.width = '100%';
+    fallbackImg.style.height = '100%';
+    fallbackImg.style.objectFit = 'cover';
+    
+    // Hide the video
+    video.style.display = 'none';
+    
+    // Insert the fallback image
+    parent.insertBefore(fallbackImg, video);
+    
+    console.log('Fallback image added for video');
+  }
+  
+  // Wait for DOM content to be loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeVideo);
   } else {
-    // Otherwise wait for DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeVideo();
-      checkAndCreateMP4Fallbacks();
-    });
+    // DOM already loaded, initialize immediately
+    initializeVideo();
   }
   
-  // Also try on window load to be sure
+  // Also initialize on window load in case videos are loaded late
   window.addEventListener('load', initializeVideo);
-  
-  // Try again after a delay for lazy-loaded content
-  setTimeout(initializeVideo, 1000);
 })();
 </script>	<meta charset="UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">

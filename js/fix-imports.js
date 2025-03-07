@@ -5,164 +5,157 @@
 (function() {
   console.log('Import fix script running');
   
-  // Create proper module resolution for ES6 imports
-  const defineModule = function(name, factory) {
-    // For ES6 imports in standard browsers
-    if (typeof window !== 'undefined') {
-      window[name] = factory();
-    }
-    
-    // For CommonJS environments
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-      module.exports = factory();
-    }
-    
-    // For AMD/RequireJS
-    if (typeof define === 'function' && define.amd) {
-      define(name, [], factory);
-    }
-    
-    // For dynamic imports
-    if (typeof window !== 'undefined') {
-      const originalImport = window.import;
-      window.import = function(modulePath) {
-        if (modulePath === name || modulePath.endsWith('/' + name) || modulePath.endsWith('/' + name + '.js')) {
-          return Promise.resolve({ 
-            [name]: factory(),
-            default: factory()
-          });
-        }
-        return originalImport ? originalImport.apply(window, arguments) : Promise.reject(new Error('Native import not supported'));
-      };
-    }
-    
-    // Support for various module map configurations
-    if (typeof window.System !== 'undefined' && window.System.register) {
-      window.System.register(name, [], function(exports) {
-        return {
-          setters: [],
-          execute: function() {
-            const module = factory();
-            exports(name, module);
-            exports('default', module);
-          }
-        };
-      });
-    }
-    
-    // ES6 module shim
-    try {
-      if (!window[name + '_importShim']) {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.textContent = `
-          import * as polyfill from './${name}.js';
-          window.${name}Module = polyfill;
-        `;
-        document.head.appendChild(script);
-        window[name + '_importShim'] = true;
-      }
-    } catch (e) {
-      console.warn('Failed to create ES6 module shim:', e);
-    }
-  };
-
+  // Check if SplitType exists, if not look for it in vendor scripts
+  if (typeof window.SplitType === 'undefined') {
+    console.log('SplitType not found, looking for it in vendor scripts');
+    // Will be created by our polyfill if not found
+  }
+  
   // Fix GSAP module import issue
-  if (window.TweenMax && !window.gsap) {
-    console.log('Creating gsap compatibility layer from TweenMax');
+  const fixGSAPImports = function() {
+    // Create a global module mapping to resolve ES module imports
+    window.__modules = window.__modules || {};
     
-    // Create a comprehensive GSAP compatibility layer
-    const createGSAP = function() {
-      // Basic GSAP API from TweenMax
-      const gsap = {
-        to: window.TweenMax.to,
-        from: window.TweenMax.from,
-        fromTo: window.TweenMax.fromTo,
-        set: window.TweenMax.set,
+    // Module name to global variable mapping
+    const moduleMap = {
+      'gsap': window.gsap || window.TweenMax,
+      'gsap/dist/gsap': window.gsap || window.TweenMax,
+      'gsap/Draggable': window.Draggable,
+      'gsap/ScrollTrigger': window.ScrollTrigger,
+      'split-type': window.SplitType
+    };
+    
+    // Create the GSAP module if needed using TweenMax/TweenLite as fallback
+    if (!window.gsap && (window.TweenMax || window.TweenLite)) {
+      console.log('Creating GSAP compatibility layer from TweenMax/TweenLite');
+      
+      // Use TweenMax or TweenLite as a base
+      const tweenBase = window.TweenMax || window.TweenLite;
+      
+      // Basic GSAP API from TweenMax/TweenLite
+      window.gsap = {
+        to: tweenBase.to,
+        from: tweenBase.from,
+        fromTo: tweenBase.fromTo,
+        set: tweenBase.set,
         timeline: function(vars) {
-          return window.TweenMax.timeline(vars);
-        },
-        getProperty: function(target, property, unit) {
-          let value;
-          try {
-            if (typeof property === 'string') {
-              // Simple property handling
-              if (property === 'x' || property === 'y' || property === 'z') {
-                value = target._gsTransform ? target._gsTransform[property] || 0 : 0;
-              } else {
-                const style = window.getComputedStyle(target);
-                value = style[property];
-                if (unit === false && value.endsWith('px')) {
-                  value = parseFloat(value);
-                }
-              }
-            }
-          } catch (e) {
-            console.warn('Error in gsap.getProperty:', e);
-          }
-          return value;
-        },
-        registerPlugin: function() {
-          console.log('GSAP registerPlugin called (compatibility mode)');
-          // Just return GSAP to allow chaining
-          return gsap;
-        },
-        core: {
-          _warn: function(message) {
-            console.warn("[GSAP Compat]:", message);
-          },
-          Tween: window.TweenMax,
-          Animation: window.TweenMax
+          return window.TimelineLite ? new window.TimelineLite(vars) : null;
         },
         utils: {
+          selector: function(selector) {
+            return document.querySelectorAll(selector);
+          },
           toArray: function(targets) {
             if (typeof targets === 'string') {
               return Array.from(document.querySelectorAll(targets));
             }
-            if (targets instanceof Element) {
-              return [targets];
-            }
-            if (targets instanceof NodeList || targets instanceof HTMLCollection) {
-              return Array.from(targets);
-            }
-            return Array.isArray(targets) ? targets : [targets];
-          },
-          selector: function(selector) {
-            return document.querySelector(selector);
-          },
-          wrap: function(elements, wrapper) {
-            elements = gsap.utils.toArray(elements);
-            const wrapperElement = typeof wrapper === 'string' 
-              ? document.createElement(wrapper) 
-              : wrapper;
-              
-            elements.forEach(el => {
-              const parent = el.parentNode;
-              parent.insertBefore(wrapperElement, el);
-              wrapperElement.appendChild(el);
-            });
-            
-            return wrapperElement;
+            return Array.from(targets || []);
           }
         }
       };
       
-      // Add cross-references to maintain compatibility
-      gsap.core.Tween.prototype.totalDuration = gsap.core.Tween.prototype.totalDuration || 
-        function() { return this.totalDuration ? this.totalDuration() : this.duration(); };
+      // Add Timeline and TimelineLite compatibility
+      if (window.TimelineLite) {
+        window.gsap.timeline = function(vars) {
+          return new window.TimelineLite(vars);
+        };
+      } else if (window.TimelineMax) {
+        window.gsap.timeline = function(vars) {
+          return new window.TimelineMax(vars);
+        };
+      }
+      
+      // Add additional GSAP plugins if available
+      if (window.CSSPlugin) {
+        window.gsap.registerPlugin = function(plugin) {
+          console.log('Plugin registration simulated:', plugin);
+        };
+      }
+      
+      // Update the module map with our new gsap object
+      moduleMap['gsap'] = window.gsap;
+      moduleMap['gsap/dist/gsap'] = window.gsap;
+    }
+    
+    // Override import for module support
+    if (window.HTMLScriptElement.supports && window.HTMLScriptElement.supports('importmap')) {
+      console.log('Browser supports importmap natively');
+    } else {
+      console.log('Creating importmap polyfill');
+      
+      // Handle dynamic imports
+      const originalImport = window.import;
+      window.import = function(specifier) {
+        const module = moduleMap[specifier];
+        if (module) {
+          return Promise.resolve({
+            default: module,
+            ...module
+          });
+        }
         
-      // Return the created gsap object
-      return gsap;
-    };
-    
-    // Create global gsap object
-    window.gsap = createGSAP();
-    
-    // Create module exports
-    defineModule('gsap', function() {
-      return window.gsap;
-    });
-  }
+        return originalImport ? originalImport.apply(window, arguments) 
+          : Promise.reject(new Error(`Module ${specifier} not found`));
+      };
+      
+      // Add an import map for proper module resolution
+      const importMap = {
+        imports: {}
+      };
+      
+      Object.keys(moduleMap).forEach(moduleName => {
+        if (moduleMap[moduleName]) {
+          importMap.imports[moduleName] = `data:text/javascript,export default globalThis.${moduleMap[moduleName].name || 'gsap'};`;
+        }
+      });
+      
+      // Add the import map to document head
+      const importMapScript = document.createElement('script');
+      importMapScript.type = 'importmap';
+      importMapScript.textContent = JSON.stringify(importMap);
+      document.head.appendChild(importMapScript);
+      
+      // Also patch the dynamic import error at script loading time
+      const originalCreateElement = document.createElement;
+      document.createElement = function(tagName) {
+        const element = originalCreateElement.apply(document, arguments);
+        if (tagName.toLowerCase() === 'script') {
+          const originalSetAttribute = element.setAttribute;
+          element.setAttribute = function(name, value) {
+            if (name === 'type' && value === 'module') {
+              // Replace bare imports with full paths in the script content
+              const originalInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+              Object.defineProperty(element, 'innerHTML', {
+                set: function(content) {
+                  // Replace bare imports with our known modules
+                  Object.keys(moduleMap).forEach(moduleName => {
+                    const regex = new RegExp(`import\\s+(.+)\\s+from\\s+['"]${moduleName}['"]`, 'g');
+                    content = content.replace(regex, (match, importNames) => {
+                      return `// Patched import\nconst ${importNames} = window.${moduleName};`;
+                    });
+                    
+                    // Also fix dynamic imports
+                    const dynamicRegex = new RegExp(`import\\s*\\(['"]${moduleName}['"]\\)`, 'g');
+                    content = content.replace(dynamicRegex, `Promise.resolve(window.${moduleName})`);
+                  });
+                  
+                  originalInnerHTML.set.call(this, content);
+                },
+                get: function() {
+                  return originalInnerHTML.get.call(this);
+                }
+              });
+            }
+            return originalSetAttribute.call(this, name, value);
+          };
+        }
+        return element;
+      };
+    }
+  };
+  
+  // Run the GSAP fix
+  fixGSAPImports();
   
   // Handle Snap.svg eve issue - this is a fallback in case snap-svg-fix.js fails
   if (window.Snap && !window.Snap.eve && window.eve) {

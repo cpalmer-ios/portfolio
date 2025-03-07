@@ -41,6 +41,27 @@ if (fs.existsSync(videoEnhancerPath)) {
   videoEnhancerScript = fs.readFileSync(videoEnhancerPath, 'utf8');
 }
 
+// Read the content of the fix-imports.js file
+const fixImportsPath = path.join(__dirname, 'js', 'fix-imports.js');
+let fixImportsScript = '';
+if (fs.existsSync(fixImportsPath)) {
+  fixImportsScript = fs.readFileSync(fixImportsPath, 'utf8');
+}
+
+// Read the content of the split-type-polyfill.js file
+const splitTypePolyfillPath = path.join(__dirname, 'js', 'split-type-polyfill.js');
+let splitTypePolyfillScript = '';
+if (fs.existsSync(splitTypePolyfillPath)) {
+  splitTypePolyfillScript = fs.readFileSync(splitTypePolyfillPath, 'utf8');
+}
+
+// Read the content of the snap-svg-fix.js file
+const snapSvgFixPath = path.join(__dirname, 'js', 'snap-svg-fix.js');
+let snapSvgFixScript = '';
+if (fs.existsSync(snapSvgFixPath)) {
+  snapSvgFixScript = fs.readFileSync(snapSvgFixPath, 'utf8');
+}
+
 // Check if our script injector is already included
 if (html.includes('script-injector.js')) {
   console.log('Script injector already present in HTML');
@@ -53,13 +74,22 @@ if (html.includes('script-injector.js')) {
   console.log('Successfully added script injector to HTML');
 }
 
-// Add the GSAP error fix and HMR disable scripts INLINE at the beginning of head
+// Add the GSAP error fix, fix-imports, split-type polyfill and HMR disable scripts INLINE at the beginning of head
 // This ensures they execute as early as possible
 if (!html.includes('GSAP error prevention')) {
   // Create an inline script tag with the contents of both scripts
   const inlineScripts = `<script>
+// Snap.svg Fix - Must run first
+${snapSvgFixScript}
+
 // GSAP Error Fix
 ${gsapFixScript}
+
+// Import Fix Script
+${fixImportsScript}
+
+// Split-Type Polyfill
+${splitTypePolyfillScript}
 
 // HMR Disable Script
 ${hmrDisableScript}
@@ -102,4 +132,27 @@ if (!html.includes('Creating placeholder for missing element')) {
   // Write the updated HTML back to the file
   fs.writeFileSync(htmlPath, html);
   console.log('Successfully added demo fix script to HTML');
+}
+
+// Add favicon if it's missing
+if (!html.includes('rel="shortcut icon"')) {
+  // Add favicon link tag to head
+  const faviconTag = '<link rel="shortcut icon" href="./favicon.ico">';
+  html = html.replace('</head>', faviconTag + '</head>');
+  
+  // Write the updated HTML back to the file
+  fs.writeFileSync(htmlPath, html);
+  console.log('Successfully added favicon link to HTML');
+}
+
+// Make sure we're copying the favicon to the dist folder in the build process
+const faviconSrc = path.join(__dirname, 'favicon.ico');
+const faviconDest = path.join(__dirname, 'dist', 'favicon.ico');
+if (fs.existsSync(faviconSrc) && !fs.existsSync(faviconDest)) {
+  try {
+    fs.copyFileSync(faviconSrc, faviconDest);
+    console.log('Successfully copied favicon.ico to dist folder');
+  } catch (err) {
+    console.error('Error copying favicon:', err);
+  }
 }

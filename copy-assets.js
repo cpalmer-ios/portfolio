@@ -83,33 +83,51 @@ srcDirs.forEach(dir => {
   copyDirectoryRecursive(srcPath, destPath);
 });
 
-// Special handling for the jfish1.mov file
-const sourceDir = __dirname;
-const distDir = path.join(__dirname, 'dist');
-const jfishSrcPath = path.join(sourceDir, 'img', 'jfish1.mov');
-if (fs.existsSync(jfishSrcPath)) {
-  // Copy to multiple locations to maximize the chance it's found
-  const jfishDestPaths = [
-    path.join(distDir, 'jfish1.mov'),              // Root directory
-    path.join(distDir, 'img', 'jfish1.mov'),       // img directory
-    path.join(distDir, 'jfish1.e9bd588f.mov')      // Hashed version in root
-  ];
-  
-  // Ensure img directory exists
-  const imgDir = path.join(distDir, 'img');
-  if (!fs.existsSync(imgDir)) {
-    fs.mkdirSync(imgDir, { recursive: true });
-  }
-  
-  // Copy to all destinations
-  jfishDestPaths.forEach(destPath => {
-    try {
-      copyFile(jfishSrcPath, destPath);
-      console.log(`Copied: ${jfishSrcPath} -> ${destPath}`);
-    } catch (error) {
-      console.error(`Error copying to ${destPath}:`, error);
-    }
-  });
+// Copy the fallback video files in different formats
+const videoSourcePath = path.join(__dirname, 'img', 'jfish1.mov');
+const mp4SourcePath = path.join(__dirname, 'img', 'jfish1.mp4');
+const webmSourcePath = path.join(__dirname, 'img', 'jfish1.webm');
+const fallbackImagePath = path.join(__dirname, 'img', 'jfish1-fallback.jpg');
+
+// Destination paths for the root level
+const movDestPath = path.join(__dirname, 'dist', 'jfish1.mov');
+const mp4DestPath = path.join(__dirname, 'dist', 'jfish1.mp4');
+const webmDestPath = path.join(__dirname, 'dist', 'jfish1.webm');
+const fallbackImageDestPath = path.join(__dirname, 'dist', 'jfish1-fallback.jpg');
+
+// Destination paths for the img folder
+const imgMovDestPath = path.join(__dirname, 'dist', 'img', 'jfish1.mov');
+const imgMp4DestPath = path.join(__dirname, 'dist', 'img', 'jfish1.mp4');
+const imgWebmDestPath = path.join(__dirname, 'dist', 'img', 'jfish1.webm');
+const imgFallbackImageDestPath = path.join(__dirname, 'dist', 'img', 'jfish1-fallback.jpg');
+
+// Destination paths with hash (as Parcel might generate)
+const hashedMovDestPath = path.join(__dirname, 'dist', 'jfish1.e9bd588f.mov');
+const hashedMp4DestPath = path.join(__dirname, 'dist', 'jfish1.e9bd588f.mp4');
+const hashedWebmDestPath = path.join(__dirname, 'dist', 'jfish1.e9bd588f.webm');
+
+// Copy all video formats to multiple locations for maximum compatibility
+if (fs.existsSync(videoSourcePath)) {
+  copyFile(videoSourcePath, movDestPath);
+  copyFile(videoSourcePath, imgMovDestPath);
+  copyFile(videoSourcePath, hashedMovDestPath);
+}
+
+if (fs.existsSync(mp4SourcePath)) {
+  copyFile(mp4SourcePath, mp4DestPath);
+  copyFile(mp4SourcePath, imgMp4DestPath);
+  copyFile(mp4SourcePath, hashedMp4DestPath);
+}
+
+if (fs.existsSync(webmSourcePath)) {
+  copyFile(webmSourcePath, webmDestPath);
+  copyFile(webmSourcePath, imgWebmDestPath);
+  copyFile(webmSourcePath, hashedWebmDestPath);
+}
+
+if (fs.existsSync(fallbackImagePath)) {
+  copyFile(fallbackImagePath, fallbackImageDestPath);
+  copyFile(fallbackImagePath, imgFallbackImageDestPath);
 }
 
 // Copy the video fallback script
@@ -159,6 +177,20 @@ const videoEnhancerSrc = path.join(__dirname, 'js', 'video-enhancer.js');
 const videoEnhancerDest = path.join(__dirname, 'dist', 'js', 'video-enhancer.js');
 if (fs.existsSync(videoEnhancerSrc)) {
   copyFile(videoEnhancerSrc, videoEnhancerDest);
+}
+
+// Copy the split-type-polyfill script
+const splitTypePolyfillSrc = path.join(__dirname, 'js', 'split-type-polyfill.js');
+const splitTypePolyfillDest = path.join(__dirname, 'dist', 'js', 'split-type-polyfill.js');
+if (fs.existsSync(splitTypePolyfillSrc)) {
+  copyFile(splitTypePolyfillSrc, splitTypePolyfillDest);
+}
+
+// Copy the snap-svg-fix script
+const snapSvgFixSrc = path.join(__dirname, 'js', 'snap-svg-fix.js');
+const snapSvgFixDest = path.join(__dirname, 'dist', 'js', 'snap-svg-fix.js');
+if (fs.existsSync(snapSvgFixSrc)) {
+  copyFile(snapSvgFixSrc, snapSvgFixDest);
 }
 
 // Manually copy index.html from root to dist directory if needed

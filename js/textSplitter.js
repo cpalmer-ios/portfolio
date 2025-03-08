@@ -1,3 +1,5 @@
+import SplitType from 'split-type';
+
 // Defines a debounce function to limit the rate at which a function can fire.
 export const debounce = (func, delay) => {
     let timerId; // Holds a reference to the timeout between calls.

@@ -35,9 +35,15 @@
 	<!-- Initialize GSAP -->
 	<script>
 		document.addEventListener('DOMContentLoaded', function() {
-			setTimeout(() => {
-				document.body.classList.remove('loading');
-			}, 100);
+			// Wait for GSAP to be available globally
+			const checkGSAP = () => {
+				if (window.gsap) {
+					document.body.classList.remove('loading');
+				} else {
+					setTimeout(checkGSAP, 100);
+				}
+			};
+			checkGSAP();
 		});
 	</script>
 	

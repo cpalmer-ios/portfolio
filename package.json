@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "description": "",
+  "type": "module",
   "scripts": {
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "npm run clean && npm run build:parcel"
+    "postbuild": "cp node_modules/gsap/dist/gsap.min.js dist/",
+    "build": "npm run clean && npm run build:parcel && npm run postbuild",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,6 @@
   "dependencies": {
     "gh-pages": "^6.3.0",
     "gsap": "^3.9.1",
-    "parcel": "latest"
+    "parcel": "^2.13.3"
   }
 }

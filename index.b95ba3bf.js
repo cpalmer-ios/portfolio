@@ -70,39 +70,29 @@
             for(let i = 0, len = this.timeouts.length; i <= len - 1; ++i)clearTimeout(this.timeouts[i]);
         }
     }
-    // Wait for both DOM and GSAP to be ready
-    function initializeDemo1() {
-        if (!window.gsap || !document.body) {
-            requestAnimationFrame(initializeDemo1);
-            return;
-        }
-        let observer1;
-        let current = -1;
-        let allentries = [];
-        const sections = Array.from(document.querySelectorAll('.content__section'));
-        // Only remove loading class if it exists
-        if (document.body.classList.contains('loading')) document.body.classList.remove('loading');
-        if ('IntersectionObserver' in window) {
-            document.body.classList.add('ioapi');
-            observer1 = new IntersectionObserver((entries)=>{
-                entries.forEach((entry)=>{
-                    if (entry.intersectionRatio > 0.5) {
-                        const newcurrent = sections.indexOf(entry.target);
-                        if (newcurrent === current) return;
-                        const direction = newcurrent > current;
-                        if (current >= 0) allentries[current].exit(direction ? 'down' : 'up');
-                        allentries[newcurrent].enter(direction ? 'down' : 'up');
-                        current = newcurrent;
-                    }
-                });
-            }, {
-                threshold: 0.5
+    let observer;
+    let current = -1;
+    let allentries = [];
+    const sections = Array.from(document.querySelectorAll('.content__section'));
+    // Preload all the images in the page..
+    document.body.classList.remove('loading');
+    if ('IntersectionObserver' in window) setTimeout(()=>{
+        document.body.classList.add('ioapi');
+        observer = new IntersectionObserver((entries)=>{
+            entries.forEach((entry)=>{
+                if (entry.intersectionRatio > 0.5) {
+                    const newcurrent = sections.indexOf(entry.target);
+                    if (newcurrent === current) return;
+                    const direction = newcurrent > current;
+                    if (current >= 0) allentries[current].exit(direction ? 'down' : 'up');
+                    allentries[newcurrent].enter(direction ? 'down' : 'up');
+                    current = newcurrent;
+                }
             });
-            sections.forEach((section)=>allentries.push(new Entry(section)));
-        }
-    }
-    // Start initialization when DOM is ready
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeDemo1);
-    else initializeDemo1();
+        }, {
+            threshold: 0.5
+        });
+        sections.forEach((section)=>allentries.push(new Entry(section)));
+    }, 5000);
 }
 //# sourceMappingURL=index.b95ba3bf.js.map

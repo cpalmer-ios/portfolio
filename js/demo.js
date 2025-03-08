@@ -4,8 +4,9 @@
  * Demo.
  */
 
-import { gsap } from "gsap";
-import { TextAnimator } from './text-animator.js';
+// Remove imports and use global GSAP instance
+// import { gsap } from "gsap";
+// import { TextAnimator } from './text-animator.js';
 
 var debounce=function(e,t,n){var a;return function(){var r=this,i=arguments,o=function(){a=null,n||e.apply(r,i)},s=n&&!a;clearTimeout(a),a=setTimeout(o,t||200),s&&e.apply(r,i)}};
 
@@ -887,3 +888,14 @@ const openModal = (e) => {
     }, 100)
 
 }());
+
+// Initialize when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Your initialization code here
+    init();
+    
+    // Remove loading class
+    setTimeout(() => {
+        document.body.classList.remove('loading');
+    }, 100);
+});

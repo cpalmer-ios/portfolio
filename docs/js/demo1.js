@@ -13,6 +13,9 @@
     const charsTotal = chars.length;
     const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+    // Create IntersectionObserver
+    let observer;
+
     class Entry {
         constructor(el) {
             this.DOM = {el: el};
@@ -63,7 +66,6 @@
         }  
     }
 
-    let observer;
     let current = -1;
     let allentries = [];
     const sections = Array.from(document.querySelectorAll('.content__section'));

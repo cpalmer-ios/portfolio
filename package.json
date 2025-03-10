@@ -5,20 +5,22 @@
   "description": "",
   "scripts": {
     "start": "parcel ./index.html --open",
-    "clean": "rm -rf dist/*",
-    "build:parcel": "parcel build ./index.html --no-content-hash --no-source-maps --public-url ./",
-    "build": "npm run clean && npm run build:parcel"
+    "clean": "rm -rf docs/*",
+    "copy-files": "mkdir -p docs && cp -r index.html hover.html css fonts js img favicon.ico docs/",
+    "copy-node-modules": "mkdir -p docs/node_modules && cp -r node_modules/gsap docs/node_modules/",
+    "build": "npm run clean && npm run copy-files && npm run copy-node-modules && touch docs/.nojekyll",
+    "deploy": "git add docs && git commit -m 'Update GitHub Pages' && git push origin main"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/codrops/[NAME].git"
+    "url": "https://github.com/cpalmer-ios/portfolio.git"
   },
   "keywords": [],
   "author": "Codrops",
   "license": "MIT",
-  "homepage": "https://tympanus.net/codrops",
+  "homepage": "https://cpalmer-ios.github.io/portfolio",
   "bugs": {
-    "url": "https://github.com/codrops/[NAME]/issues"
+    "url": "https://github.com/cpalmer-ios/portfolio/issues"
   },
   "dependencies": {
     "gsap": "^3.9.1",

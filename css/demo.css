@@ -666,6 +666,12 @@ a:focus {
   background: var(--color-bg-menu);
 }
 
+@media screen and (max-width: 1680px) {
+  .list {
+    display: none;
+  }
+}
+
 .content p {
 	padding: 5vh var(--page-padding) 0;
 	font-size: 12px;
@@ -920,6 +926,20 @@ a:focus {
   position: absolute;
   margin-left: 1rem;
   margin-top: 2rem;
+}
+
+@media screen and (max-width: 1680px) {
+  .slide-effect,
+  .slide-effect2 {
+    display: none;
+  }
+  .wrapper-jfish {
+    z-index: -1;
+    filter: contrast(1.5);
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+}
 }
 
 .tn-atom {

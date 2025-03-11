@@ -323,12 +323,6 @@ const DOM = {
     }
   });
   
-  document.querySelectorAll('.content__section').forEach((section, index) => {
-    section.addEventListener('click', () => {
-      section.scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-  
   // Wait for the DOM to load
   document.addEventListener("DOMContentLoaded", function () {
     // Initialize ScrollTrigger if it exists

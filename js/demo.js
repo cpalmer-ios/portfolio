@@ -183,7 +183,7 @@ var demo = (function (window, undefined) {
     var tweenOtherCards = _showHideOtherCards(id);
 
     if (!card.isOpen) {
-      // Open sequence.
+      // Open sequence. 
       sequence.add(tweenOtherCards);
       sequence.add(card.openCard(_onCardMove), 0);
     } else {

@@ -1,0 +1,89 @@
+body {
+  opacity: 1 !important;
+  visibility: visible !important;
+  background: #fff !important;
+}
+
+.loading:before, .loading:after {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
+.blurred {
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  animation: none !important;
+}
+
+.js .loading:before, .js .loading:after {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  display: none !important;
+}
+
+.content:not(.card__content) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1 !important;
+  background: none !important;
+  position: relative !important;
+}
+
+.menu {
+  z-index: 1000 !important;
+  background: none !important;
+}
+
+.cover-wrap, .cover {
+  display: none !important;
+}
+
+.cover__inner {
+  background: none !important;
+  display: none !important;
+  transform: none !important;
+}
+
+:not(.card *) {
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.modal1, .lightbox, .lightbox_bg {
+  background: none !important;
+}
+
+.modal_content {
+  z-index: 4 !important;
+}
+
+.card {
+  z-index: 3 !important;
+  transform-origin: center !important;
+}
+
+.card__container {
+  z-index: 1000 !important;
+  transform-origin: center !important;
+}
+
+.clip {
+  transform-origin: center !important;
+}
+
+circle.clip {
+  r: 992;
+  transition: r .8s cubic-bezier(1, 0, .3, 1);
+}
+
+.card__container--closed .clip {
+  r: 992 !important;
+}
+
+.block-revealer__element:not(.card *) {
+  background: none !important;
+  display: none !important;
+}
+/*# sourceMappingURL=index.0569f1ff.css.map */

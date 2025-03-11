@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Card.
+ * Card - Updated with GSAP v3 syntax.
  */
 var Card = (function(window, undefined) {
 
@@ -26,9 +26,7 @@ var Card = (function(window, undefined) {
    * Card.
    */
   function Card(id, el) {
-
     this.id = id;
-
     this._el = el;
 
     // Get elements.
@@ -37,7 +35,6 @@ var Card = (function(window, undefined) {
     this._content = $(this._el).find(SELECTORS.content)[0];
 
     this.isOpen = false;
-
     this._TL = null;
   };
 
@@ -46,8 +43,8 @@ var Card = (function(window, undefined) {
    * @param {Function} callback The callback `onCardMove`.
    */
   Card.prototype.openCard = function(callback) {
-
-    this._TL = new TimelineLite;
+    // Updated: Use gsap.timeline() instead of new TimelineLite()
+    this._TL = gsap.timeline();
 
     var slideContentDown = this._slideContentDown();
     var clipImageIn = this._clipImageIn();
@@ -62,7 +59,6 @@ var Card = (function(window, undefined) {
     this._TL.add(clipImageOut, '-=' + floatContainer.duration() * 0.3);
     this._TL.add(slideContentUp, '-=' + clipImageOut.duration() * 0.6);
     
-
     this.isOpen = true;
 
     return this._TL;
@@ -73,10 +69,11 @@ var Card = (function(window, undefined) {
    * @private
    */
   Card.prototype._slideContentDown = function() {
-
-    var tween = TweenLite.to(this._content, 0.8, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    var tween = gsap.to(this._content, {
+      duration: 0.8,
       y: window.innerHeight,
-      ease: Expo.easeInOut
+      ease: "expo.inOut" // Updated ease syntax
     });
 
     return tween;
@@ -87,13 +84,14 @@ var Card = (function(window, undefined) {
    * @private
    */
   Card.prototype._clipImageIn = function() {
-
     // Circle.
-    var tween = TweenLite.to(this._clip, 0.8, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    var tween = gsap.to(this._clip, {
+      duration: 0.8,
       attr: {
         r: 60
       },
-      ease: Expo.easeInOut
+      ease: "expo.inOut" // Updated ease syntax
     });
 
     return tween;
@@ -105,10 +103,10 @@ var Card = (function(window, undefined) {
    * @private
    */
   Card.prototype._floatContainer = function(callback) {
-
     $(document.body).addClass(CLASSES.bodyHidden);
 
-    var TL = new TimelineLite;
+    // Updated: Use gsap.timeline() instead of new TimelineLite()
+    var TL = gsap.timeline();
 
     var rect = this._container.getBoundingClientRect();
     var windowW = window.innerWidth;
@@ -119,6 +117,7 @@ var Card = (function(window, undefined) {
       y: rect.top + (rect.height / 2),
     };
 
+    // Updated: Use TL.set() instead of TL.set()
     TL.set(this._container, {
       width: rect.width,
       height: rect.height,
@@ -128,16 +127,20 @@ var Card = (function(window, undefined) {
       overflow: 'hidden'
     });
 
-    TL.to([this._container, track], 2, {
+    // Updated: Use TL.to() with updated parameters
+    TL.to([this._container, track], {
+      duration: 2,
       width: windowW,
       height: '100%',
       x: windowW / 2,
       y: 0,
       xPercent: -50,
-      ease: Expo.easeInOut,
+      ease: "expo.inOut", // Updated ease syntax
       clearProps: 'all',
       className: '-=' + CLASSES.containerClosed,
-      onUpdate: callback.bind(this, track)
+      onUpdate: function() {
+        callback(track);
+      }
     });
 
     return TL;
@@ -148,14 +151,10 @@ var Card = (function(window, undefined) {
    * @private
    */
   Card.prototype._clipImageOut = function() {
-
     // Circle.
     var radius = $(this._clip).attr('r');
-
     var tween = this._clipImageIn();
-
     tween.vars.attr.r = radius;
-
     return tween;
   };
 
@@ -164,11 +163,12 @@ var Card = (function(window, undefined) {
    * @private
    */
   Card.prototype._slideContentUp = function() {
-
-    var tween = TweenLite.to(this._content, 1, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    var tween = gsap.to(this._content, {
+      duration: 1,
       y: 0,
       clearProps: 'all',
-      ease: Expo.easeInOut
+      ease: "expo.inOut" // Updated ease syntax
     });
 
     return tween;
@@ -178,27 +178,26 @@ var Card = (function(window, undefined) {
    * Close card.
    */
   Card.prototype.closeCard = function() {
-
-    TweenLite.to(this._container, 0.4, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    gsap.to(this._container, {
+      duration: 0.4,
       scrollTo: {
         y: 0
       },
       onComplete: function() {
         $(this._container).css('overflow', 'hidden');
       }.bind(this),
-      ease: Power2.easeOut
+      ease: "power2.out" // Updated ease syntax
     });
 
     this._TL.eventCallback('onReverseComplete', function() {
-
-      TweenLite.set([this._container, this._content], {
+      // Updated: Use gsap.set() instead of TweenLite.set()
+      gsap.set([this._container, this._content], {
         clearProps: 'all'
       });
 
       $(document.body).removeClass(CLASSES.bodyHidden);
-
       this.isOpen = false;
-
     }.bind(this));
 
     return this._TL.reverse();
@@ -208,12 +207,13 @@ var Card = (function(window, undefined) {
    * Hide card, called for all cards except the selected one.
    */
   Card.prototype.hideCard = function() {
-
-    var tween = TweenLite.to(this._el, 0.4, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    var tween = gsap.to(this._el, {
+      duration: 0.4,
       scale: 0.8,
       autoAlpha: 0,
       transformOrigin: 'center bottom',
-      ease: Expo.easeInOut
+      ease: "expo.inOut" // Updated ease syntax
     });
 
     return tween;
@@ -223,12 +223,13 @@ var Card = (function(window, undefined) {
    * Show card, called for all cards except the selected one.
    */
   Card.prototype.showCard = function() {
-
-    var tween = TweenLite.to(this._el, 0.5, {
+    // Updated: Use gsap.to() instead of TweenLite.to()
+    var tween = gsap.to(this._el, {
+      duration: 0.5,
       scale: 1,
       autoAlpha: 1,
       clearProps: 'all',
-      ease: Expo.easeInOut
+      ease: "expo.inOut" // Updated ease syntax
     });
 
     return tween;
@@ -236,4 +237,4 @@ var Card = (function(window, undefined) {
 
   return Card;
 
-})(window);
+})(window); 

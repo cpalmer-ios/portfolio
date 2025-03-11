@@ -11,8 +11,7 @@ var Card = (function(window, undefined) {
   var SELECTORS = {
     container: '.card__container',
     content: '.card__content',
-    clip: '.clip',
-    card_img: '.card__img'
+    clip: '.clip'
   };
 
   /**
@@ -35,8 +34,7 @@ var Card = (function(window, undefined) {
     // Get elements.
     this._container = $(this._el).find(SELECTORS.container)[0];
     this._clip = $(this._el).find(SELECTORS.clip)[0];
-    this._content = $(this._el).find(SELECTORS.content)[0];  
-    this._card__img = $(this._el).find(SELECTORS.card__img)[0];  
+    this._content = $(this._el).find(SELECTORS.content)[0];
 
     this.isOpen = false;
 
@@ -162,11 +160,7 @@ var Card = (function(window, undefined) {
       x: rect.left,
       y: rect.top,
       position: 'fixed',
-      overflow: 'hidden',
-    });
-
-    TL.set(this._card__img, {
-      opacity: 1
+      overflow: 'hidden'
     });
 
     TL.to([this._container, track], 2, {

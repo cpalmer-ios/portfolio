@@ -1,13 +1,10 @@
 "use strict";
 
 /**
- * Demo.
+ * Demo2 - Updated with GSAP v3 syntax.
  */
 
-// Use globals from window
-// Note: In GSAP v2.1.3, we use TweenMax, TweenLite, and TimelineLite directly
-// The gsap variable declaration is no longer needed as we're using v2.1.3 globals
-// const gsap = window.gsap;
+// Use the global TextAnimator
 const TextAnimator = window.TextAnimator;
 
 var debounce=function(e,t,n){var a;return function(){var r=this,i=arguments,o=function(){a=null,n||e.apply(r,i)},s=n&&!a;clearTimeout(a),a=setTimeout(o,t||200),s&&e.apply(r,i)}};
@@ -173,12 +170,10 @@ var demo = (function (window, undefined) {
 
     // Prevent when card already open and user click on image.
     if (card.isOpen && isOpenClick) return;
-    // $(".menu").attr("class", "menu" + " " + "slide-up");
-    // $(".ink__blot-1").attr("class", "menu" + " " + "fade-out");
-    
 
     // Create timeline for the whole sequence.
-    var sequence = new TimelineLite({ paused: true });
+    // Updated: Use gsap.timeline() instead of new TimelineLite()
+    var sequence = gsap.timeline({ paused: true });
 
     var tweenOtherCards = _showHideOtherCards(id);
 
@@ -188,7 +183,6 @@ var demo = (function (window, undefined) {
       sequence.add(card.openCard(_onCardMove), 0);
     } else {
       $(".menu").attr("class", "menu" + " " + "slide-down");
-      // document.querySelectorAll(".card").forEach((card, i) => {card.style.opacity = 1});
       // Close sequence.
       var closeCard = card.closeCard();
       var position = closeCard.duration() * 0.8; // 80% of close card tween.
@@ -202,11 +196,12 @@ var demo = (function (window, undefined) {
 
   /**
    * Show/Hide all other cards.
-   * @param {number} id The id of the clcked card to be avoided.
+   * @param {number} id The id of the clicked card to be avoided.
    * @private
    */
   function _showHideOtherCards(id) {
-    var TL = new TimelineLite();
+    // Updated: Use gsap.timeline() instead of new TimelineLite()
+    var TL = gsap.timeline();
 
     var selectedCard = layout[id].card;
 
@@ -299,7 +294,6 @@ document.addEventListener('scroll', () => {
 
 
 (function () {
-
   const buttons = document.querySelectorAll("[data-modal_trigger]");
   if (!buttons) {return;}
 
@@ -313,7 +307,6 @@ document.addEventListener('scroll', () => {
 	const frames = 25; // Number of sprite png frames
   
   function setLayerDimensions () {
-
 		const windowWidth = window.innerWidth;
 		const windowHeight = window.innerHeight;
 
@@ -332,18 +325,13 @@ document.addEventListener('scroll', () => {
       transitionLayer_bg.style.width = layerWidth * frames + "px";
       transitionLayer_bg.style.height = layerHeight + "px";
     });
-
   }
 
 	//set transitionBackground dimensions
 	setLayerDimensions();
  
   window.addEventListener("resize", debounce(setLayerDimensions, 300, false));
-
 }());
-
-
-
 
 /* Open LinkedIn modal */
 const openLinkedIn = (function () {
@@ -389,7 +377,6 @@ const openEducation = (function () {
   return (e) => {  // Returning the function to the outer scope
     e.preventDefault();
     const modalId = e.target.getAttribute("aria-controls");
-    // const modelId = e.target.getAttribute(btnOpenAttr);
     if (!modalId) return;
 
     const modal = document.getElementById(modalId);
@@ -418,7 +405,6 @@ const openResume = (function () {
   return (e) => {  // Returning the function to the outer scope
     e.preventDefault();
     const modalId = e.target.getAttribute("aria-controls");
-    // const modelId = e.target.getAttribute(btnOpenAttr);
     if (!modalId) return;
 
     const modal = document.getElementById(modalId);
@@ -436,7 +422,6 @@ const openResume = (function () {
 const openModal = (e) => {
   e.preventDefault();
   
-
   const modalId = e.target.getAttribute("aria-controls");
   if (!modalId) return;
 
@@ -456,11 +441,7 @@ const openModal = (e) => {
 };
 
 /* Close modal from clicking modal_bg or button */
-
 (function () {
-  
-
-  // const modals = document.getElementById('.modal1');
   const modals = document.querySelectorAll(".modal1");
   if (!modals) {return;}
 
@@ -484,7 +465,6 @@ const openModal = (e) => {
   };
   
   const closeAnimStart = (e) => {
-    
     // In case it's an anchor
 		e.preventDefault();
 
@@ -501,31 +481,20 @@ const openModal = (e) => {
     transitionLayer_bg.addEventListener("animationend", () => {
       transitionLayer.classList.remove(closingClass, visibleClass);
     }, {once: true});
-
   }
 
   for (const modal of modals) {
     modal.addEventListener("click", closeAnimStart, false);
-    // $(".menu").removeClass("slide-up");
-    // $(".menu").attr("class", "menu" + " " + "slide-down");
-    // $("#container-ani").removeClass("slide-up");
   }
-
 }());
 
-
 /* Question button click */
-
 (function () {
-  
   const buttons = document.querySelectorAll(".menu__nav-top a.line-link");
   const clickedClass = "-js-clicked";
   
   for (const btn of buttons) {
-    
     btn.addEventListener("click", (e) => {
-      // $(".menu").attr("class", "menu" + " " + "slide-up");
-      // $("#container-ani").attr("class", "menu" + " " + "slide-up");
       e.target.classList.add(clickedClass);
       e.target.addEventListener("animationend", (e) => {
         e.target.classList.remove(clickedClass);
@@ -535,90 +504,32 @@ const openModal = (e) => {
     btn.addEventListener("blur", (e) => {
       e.target.classList.remove(clickedClass);
     }, false);
-
   }
 
   document.querySelectorAll('.list__item').forEach(item => {
     const cols = Array.from(item.querySelectorAll('.hover-effect'));
-    
-    // Initialize TextAnimator safely with additional error checking
-    let animators = [];
-    cols.forEach(col => {
-      try {
-        if (window.TextAnimator) {
-          const animator = new window.TextAnimator(col);
-          if (animator) {
-            animators.push(animator);
-          }
-        } else {
-          console.warn('TextAnimator not found on window object');
-        }
-      } catch (err) {
-        console.error('Error creating TextAnimator:', err);
-      }
-    });
+    const animators = cols.map(col => new TextAnimator(col));
 
     item.addEventListener('mouseenter', () => {
-      animators.forEach(animator => {
-        if (animator && typeof animator.animate === 'function') {
-          try {
-            animator.animate();
-          } catch (err) {
-            console.error('Error in animator.animate():', err);
-          }
-        }
-      });
+      animators.forEach(animator => animator.animate());
     });
-    
     item.addEventListener('mouseleave', () => {
-      animators.forEach(animator => {
-        if (animator && typeof animator.animateBack === 'function') {
-          try {
-            animator.animateBack();
-          } catch (err) {
-            console.error('Error in animator.animateBack():', err);
-          }
-        }
-      });
+      animators.forEach(animator => animator.animateBack());
     });
   });
 
   // Same for all links
   document.querySelectorAll('a.hover-effect').forEach(item => {
-    let animator = null;
-    try {
-      if (window.TextAnimator) {
-        animator = new window.TextAnimator(item);
-      } else {
-        console.warn('TextAnimator not found on window object');
-      }
-    } catch (err) {
-      console.error('Error creating TextAnimator for link:', err);
-    }
-    
-    if (animator) {
-      item.addEventListener('mouseenter', () => {
-        try {
-          animator.animate();
-        } catch (err) {
-          console.error('Error in animator.animate() for link:', err);
-        }
-      });
-      
-      item.addEventListener('mouseleave', () => {
-        try {
-          animator.animateBack();
-        } catch (err) {
-          console.error('Error in animator.animateBack() for link:', err);
-        }
-      });
-    }
+    const animator = new TextAnimator(item);
+    item.addEventListener('mouseenter', () => {
+      animator.animate();
+    });
+    item.addEventListener('mouseleave', () => {
+      animator.animateBack();
+    });
   });
 
-    setTimeout(() => {
-      document.body.classList.remove('loading');
-    }, 100)
-
+  setTimeout(() => {
+    document.body.classList.remove('loading');
+  }, 100)
 }());
-
-

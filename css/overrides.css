@@ -1,0 +1,105 @@
+/* Override problematic animations and effects */
+body {
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: #fff !important;
+}
+
+.loading::before,
+.loading::after {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.blurred {
+    animation: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+
+.js .loading::before,
+.js .loading::after {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Ensure content is visible and properly layered */
+.content:not(.card__content) {
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+    position: relative !important;
+    background: transparent !important;
+}
+
+/* Ensure menu appears above content */
+.menu {
+    z-index: 1000 !important;
+    background: transparent !important;
+}
+
+/* Override cover styles */
+.cover-wrap {
+    display: none !important;
+}
+
+.cover {
+    display: none !important;
+}
+
+.cover__inner {
+    display: none !important;
+    background: transparent !important;
+    transform: none !important;
+}
+
+/* Remove any blur effects except for cards */
+*:not(.card *) {
+    filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Additional overrides for any dark overlays */
+.modal1,
+.lightbox,
+.lightbox_bg {
+    background: transparent !important;
+}
+
+.modal_content {
+    z-index: 4 !important;
+}
+
+/* Preserve card animations */
+.card {
+    z-index: 3 !important;
+    transform-origin: center !important;
+}
+
+.card__container {
+    z-index: 1000 !important;
+    transform-origin: center !important;
+}
+
+/* Allow clip animation to work */
+.clip {
+    transform-origin: center !important;
+}
+
+circle.clip {
+    r: 992;
+    transition: r 0.8s cubic-bezier(1, 0, 0.3, 1);
+}
+
+.card__container--closed .clip {
+    r: 992 !important;
+}
+
+/* Only override block revealer on non-card elements */
+.block-revealer__element:not(.card *) {
+    background: transparent !important;
+    display: none !important;
+} 

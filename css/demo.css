@@ -1585,7 +1585,7 @@ a:focus-visible {
 
 .modal-content {
   justify-content: space-between;
-  background: url('../img/blot3.png') no-repeat;
+  /* background: url('../img/blot3.png') no-repeat; */
   overflow: hidden;
   /* filter: blur(0.99); */
   /* background: var(--color-bg-menu); */

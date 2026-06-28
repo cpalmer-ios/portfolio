@@ -8,7 +8,8 @@
     "start": "parcel ./index.html --open",
     "clean": "rm -rf dist/*",
     "build": "parcel build ./index.html --public-url ./ --no-source-maps",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "parse-fixtures": "bun run src/scripts/parse-fixtures.ts"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,11 @@
     "parcel": "latest",
     "snapsvg": "^0.5.1",
     "split-type": "^0.3.4",
-    "svgo": "^3.2.0"
+    "svgo": "^3.2.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "typescript": "^6.0.3"
   }
 }

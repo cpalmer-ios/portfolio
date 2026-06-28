@@ -3,3 +3,7 @@
 /dist/
 .DS_Store
 *.log
+parsed_fixtures.json
+parsed_fixtures.jsonl
+raw_fixtures.json
+raw_fixtures.jsonl

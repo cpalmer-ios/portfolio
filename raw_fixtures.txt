@@ -1,0 +1,37 @@
+Play Netball - Milton Keynes Monday - Division 1
+
+Venue: Oakgrove School, Venturer Gate, Milton Keynes, MK10 9JQ
+
+=== TEAMS ===
+Net Breakers | Jane Smith | jane.smith@example.com
+Shooting Stars | John Doe | john.doe@example.com
+Blue Birds (Captain: Emma Wilson)
+Red Roses | Captain: Olivia Brown
+
+=== VENUES ===
+Oakgrove School | Venturer Gate, Milton Keynes, MK10 9JQ | Court 1
+Oakgrove School | Venturer Gate, Milton Keynes, MK10 9JQ | Court 2
+
+=== FIXTURES ===
+Round	Date	Time	Home	Away	Venue	Court
+1	13/01/2026	19:00	Net Breakers	Shooting Stars	Oakgrove School	Court 1
+1	13/01/2026	19:40	Blue Birds	Red Roses	Oakgrove School	Court 2
+2	20/01/2026	19:00	Shooting Stars	Blue Birds	Oakgrove School	Court 1
+2	20/01/2026	19:40	Red Roses	Net Breakers	Oakgrove School	Court 2
+
+Round 3 - Monday 27 January 2026
+Court 1 - 7:00pm - Net Breakers vs Red Roses
+Court 2 - 7.40pm - Shooting Stars vs Blue Birds
+
+GO Mammoth - Netball Battersea Park - Ladies Recreational
+
+Venue: Battersea Park Millennium Arena, Albert Bridge Rd, SW11 4NJ
+
+Teams
+Mammoth Mixers (Captain: Sophie Taylor)
+Park Runners | Captain: Hannah Lee
+River City | Captain: Mia Patel
+
+Week 4
+Mon 03 Feb 2026 | 7:00pm | Mammoth Mixers vs Park Runners | Court 1
+Mon 03 Feb 2026 | 7:40pm | River City vs Mammoth Mixers | Court 2
